@@ -223,7 +223,6 @@ if __name__ == '__main__':
 
     #Loop through species
     for jj in species:
-     print(jj)
      df_replace = df.replace(0.0,np.nan) #Replace all exact 0.0 values with nan
      df_drop=df_replace.dropna(subset=[jj,sub_map.get(jj)]) #Drops all rows with obs species = NaN
 
@@ -262,12 +261,13 @@ if __name__ == '__main__':
       startdatename = str(datetime.datetime.strftime(startdatename_obj,'%Y-%m-%d_%H'))
       enddatename = str(datetime.datetime.strftime(enddatename_obj,'%Y-%m-%d_%H'))
       outname = "{}.{}.{}.{}.{}".format(out_name, jj, startdatename, enddatename,region)
+      if reg is True:
+       outname = "{}.{}.{}.{}.{}.{}".format(out_name,jj,startdatename, enddatename,region,'reg')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,jj, region)
-     
-     if reg is true:
-      outname = "{}.{}.{}.{}".format(out_name,jj,region,'reg')
+      if reg is True:
+       outname = "{}.{}.{}.{}".format(out_name,jj,region,'reg')
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 
