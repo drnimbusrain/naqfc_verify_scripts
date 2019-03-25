@@ -18,7 +18,6 @@ import subprocess
 import sys
 sys.path.append('/data/aqf/patrickc/MONET/')
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
-#from mpl_toolkits.basemap import Basemap
 import cartopy.crs as ccrs
 import dask
 import matplotlib as mpl
@@ -63,15 +62,12 @@ def make_spatial_bias_plot(df,
                            date=None,
                            region='domain',
                            **kwargs):
+#    monet.plots.mapgen.draw_map(states=True)
     ax = monet.plots.sp_scatter_bias(
-        df, col1=col1, col2=col2, **kwargs)
+        df, col1=col1, col2=col2, map_kwargs=dict(states=True),**kwargs)
     date = pd.Timestamp(date)
     dt = date - initial_datetime
     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
-#    m = Basemap()
-#    m.drawmapboundary(fill_color='lightblue')
-#    m.drawstates(linewidth=0.5, linestyle='solid', color='k')
-#    m.drawcountries(linewidth=2, linestyle='solid', color='k' ) 
     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
         
     if region == 'domain':
