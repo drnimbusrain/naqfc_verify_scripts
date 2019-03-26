@@ -190,7 +190,7 @@ if __name__ == '__main__':
      elif jj == 'RHUM':
      #convert model mixing ratio to relative humidity
       df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])
-      df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
+     # df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
      else:
       df2=df2
 #subset for period, or use output frequency
@@ -209,4 +209,4 @@ if __name__ == '__main__':
         
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)]) 
 # make the plots
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, outname)
+     make_plots(dfnew, sub_map.get(jj), jj, startdate, enddate, outname)
