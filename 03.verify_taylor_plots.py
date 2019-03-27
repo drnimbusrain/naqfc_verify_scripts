@@ -55,9 +55,9 @@ def load_paired_data(fname):
     return pd.read_hdf(fname)
 
 
-def make_taylor_diagram(df, col1, col2, savename):
+def make_taylor_diagram(df, col1, col2, scale, savename):
     dia = monet.plots.plots.taylordiagram(
-        df, col1=col1, col2=col2, label1='AIRNOW', label2='CMAQ')
+        df, col1=col1, col2=col2, label1='AIRNOW', label2='CMAQ', scale=scale)
     date = df.time.min()
     plt.legend(loc=(.8, .8))
     name = "{}.{}".format(savename, date.strftime('tyr.%Y%m%d%H.png'))
@@ -66,7 +66,7 @@ def make_taylor_diagram(df, col1, col2, savename):
         name, bbox_inches='tight', dpi=100, loc=3, decorate=True)
     return dia 
 
-def make_plots(df, variable, obs_variable, startdate, enddate, out_name):
+def make_plots(df, variable, obs_variable, startdate, enddate, scale, out_name):
         if startdate == None and enddate == None: 
           for t in df.time.unique():
             date = pd.Timestamp(t)
@@ -77,7 +77,7 @@ def make_plots(df, variable, obs_variable, startdate, enddate, out_name):
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time ==
                           date, ['time', 'latitude', 'longitude', obs_variable, variable]]
-            make_taylor_diagram(odf, col1=obs_variable, col2=variable, savename=out_name)
+            make_taylor_diagram(odf, col1=obs_variable, col2=variable, scale=scale, savename=out_name)
             print(t)
         #make total period taylor plot
         else:
@@ -86,7 +86,7 @@ def make_plots(df, variable, obs_variable, startdate, enddate, out_name):
           print('Creating Plot:', obs_variable, 'for period:', startdate, 'to ', enddate  )
           print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-          make_taylor_diagram(df, col1=obs_variable, col2=variable, savename=out_name)         
+          make_taylor_diagram(df, col1=obs_variable, col2=variable, scale=scale, savename=out_name)         
 
 if __name__ == '__main__':
 
@@ -143,6 +143,13 @@ if __name__ == '__main__':
         type=str,
         required=False,
         default=None)
+    parser.add_argument(
+        '-sc',
+        '--scale',
+        help='Scaling factor for standard deviation axes on Taylor diagram',
+        type=float,
+        required=False,
+        default=1.5)
     args = parser.parse_args()
 
     paired_data = args.paired_data
@@ -153,6 +160,7 @@ if __name__ == '__main__':
     startdate   = args.startdate
     enddate     = args.enddate
     reg         = args.regulatory   
+    scale       = args.scale
     
 #load the paired dataframe 
     df = load_paired_data(paired_data)
@@ -209,4 +217,4 @@ if __name__ == '__main__':
         
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)]) 
 # make the plots
-     make_plots(dfnew, sub_map.get(jj), jj, startdate, enddate, outname)
+     make_plots(dfnew, sub_map.get(jj), jj, startdate, enddate, scale, outname)
