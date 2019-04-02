@@ -9,7 +9,7 @@
 # $Id: nemsio2nc4.py 100014 2018-03-29 14:12:00Z Barry.Baker@noaa.gov $
 ###############################################################
 
-__author__ = 'Patrick.C.Campbell'
+__author__ = 'Patrick Campbell'
 __email__ = 'Patrick.C.Campbell@noaa.gov'
 __license__ = 'GPL'
 
@@ -18,10 +18,14 @@ import subprocess
 import sys
 sys.path.append('/data/aqf/patrickc/MONET/')
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
-import cartopy.crs as ccrs
+
 import dask
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import pandas as pd
+import cartopy.crs as ccrs
+mpl.use('agg')
+
 import pandas as pd
 import seaborn as sns
 import numpy as np
@@ -31,6 +35,7 @@ from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum
 sns.set_context('notebook')
 
 plt.ioff()
+
 '''
 Simple utility to make spatial plots from the NAQFC forecast and overlay observations
 '''
@@ -46,137 +51,113 @@ def  make_8hr_regulatory(df,col=None):
      return calc_8hr_rolling_max(df,col,window=8)
 
 
+def map_projection(f):
+    import cartopy.crs as ccrs
+    proj = ccrs.LambertConformal(
+        central_longitude=f.XCENT, central_latitude=f.YCENT)
+    return proj
+
+
 def chdir(fname):
     dir_path = os.path.dirname(os.path.realpath(fname))
     os.chdir(dir_path)
     return os.path.basename(fname)
 
+
+def open_cmaq(finput):
+    from monet.models import cmaq
+    f = cmaq.open_mfdataset(finput)
+    return f
+
+
 def load_paired_data(fname):
     return pd.read_hdf(fname)
 
+def make_spatial_plot(da, df, outname, proj, region='domain'): 
+    cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
 
-def make_spatial_bias_plot(df,
-                           out_name,
-                           col1='OZONE',
-                           col2='O3',
-                           date=None,
-                           region='domain',
-                           **kwargs):
-#    monet.plots.mapgen.draw_map(states=True)
-    ax = monet.plots.sp_scatter_bias(
-        df, col1=col1, col2=col2, map_kwargs=dict(states=True),**kwargs)
-    date = pd.Timestamp(date)
-    dt = date - initial_datetime
-    dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
-    plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
-        
     if region == 'domain':
      latmin= 25.0
      lonmin=-130.0
      latmax= 55.0
      lonmax=-55.0
     else:
-     from monet.util.tools import get_epa_region_bounds as get_epa_bounds    
+     from monet.util.tools import get_epa_region_bounds as get_epa_bounds
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
-   
-    plt.xlim([lonmin,lonmax])
-    plt.ylim([latmin,latmax]) 
-  
-    plt.tight_layout(pad=0)
-    savename = "{}.{}.{}.jpg".format(out_name,
-                                     initial_datetime.strftime('spbias.%Y%m%d'),
+    
+    extent = [lonmin,lonmax,latmin,latmax]
+    ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True) 
+    plt.gcf().canvas.draw() 
+    plt.tight_layout(pad=-1) 
+
+    date = pd.Timestamp(da.time.values) 
+    dt = date - initial_datetime
+    dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
+    plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
+
+    cbar = ax.figure.get_axes()[1] 
+    vmin, vmax = cbar.get_ybound() 
+    vars = df.keys() 
+    varname = [x for x in vars if x not in ['latitude','longitude']][0] 
+    ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='w',linewidth=.08,vmin=vmin,vmax=vmax) 
+    ax.set_extent(extent,crs=ccrs.PlateCarree())
+
+    savename = "{}.{}.{}.jpg".format(outname,
+                                     initial_datetime.strftime('sp.%Y%m%d'),
                                      dtstr)
     print(savename)
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
+def make_plots(finput, paired_data, variable, obs_variable, verbose, region, outname):
 
-def make_plots(df, variable, obs_variable, startdate, enddate, region,out_name):
-    if startdate == None and enddate == None:
-        for t in df.time.unique():
-            date = pd.Timestamp(t)
-            print(
-                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            print('Creating Plot:', obs_variable, 'at time:', date)
-            print(
-                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            odf = df.loc[df.time ==
-                          date, ['time', 'latitude', 'longitude', obs_variable, variable]]
-            print(t)
-            if ~odf.empty:
-                make_spatial_bias_plot(
-                    odf,
-                    out_name,
-                    col1=obs_variable,
-                    col2=variable,
-                    date=t,
-                    region=region,
-                    cmap='RdBu_r',
-                    edgecolor='k',
-                    linewidth=.8)
-    else:
-        sdate=pd.Timestamp(startdate)
-        edate=pd.Timestamp(enddate)
-        df_mean=df.groupby(['siteid'],as_index=False).mean()
-        print(
-                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        print('Creating Plot:', obs_variable, 'for period:', startdate, 'to ', enddate  )
-        print(
-                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        make_spatial_bias_plot(
-                    df_mean,
-                    out_name,
-                    col1=obs_variable,
-                    col2=variable,
-                    date=edate,
-                    region=region,
-                    cmap='RdBu_r',
-                    edgecolor='k',
-                    linewidth=.8)
+    # open the files
+    f = open_cmaq(finput)
+    # get map projection
+    proj = map_projection(f)
+    if paired_data is not None:
+        df = paired_data
+    # loop over varaible list
+    plots = []
+#    for index, var in enumerate(variable):
+    obj = f[variable]
+        # loop over time
+    for t in obj.time:
+            date = pd.Timestamp(t.values)
+            print(date)
+            odf = df.loc[df.time == pd.Timestamp(t.values),['latitude','longitude',obs_variable]]
+            make_spatial_plot(obj.sel(time=t), odf, outname, proj, region=region)
+#            plots.append(dask.delayed(make_spatial_plot)
+#                         (obj.sel(time=t), odf, proj))
+#        plots dask.delayed(make_spatial_plot)(
+#            obj.sel(time=t), proj) for t in obj.time]
+#    dask.delayed(plots).compute()
+    # if paired_data is not None:
+    #     ov = obs_variable[[index, 'latitude', 'longitude'].loc[obs_variable.time == t]
+    # ax.scatter()
 
-def get_df_region(obj, region):
-    from monet.util.tools import get_epa_region_df as get_epa
-    if region.lower() == 'domain':
-        obj['EPA_ACRO'] = 'domain'
-        return obj
-    else:
-        obj = get_epa(region)
-        return obj.loc[obj.EPA_ACRO == region.upper()]
 
 
 if __name__ == '__main__':
 
-    parser = ArgumentParser(
-        description='Make Spatial Plots for each time step or over period in files',
-        formatter_class=ArgumentDefaultsHelpFormatter)
+    parser = ArgumentParser(description='Make Spatial Plots for each time step in files',
+                            formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        '-f',
-        '--paired_data',
-        help='paired data input file names',
-        type=str,
-        required=True)
+        '-f', '--files', help='input model file names', nargs='+', type=str, required=True)
     parser.add_argument(
-        '-s', '--species', nargs='+', help='Species', required=False, default={'OZONE'})
+        '-p', '--paired_data', help='associated paired data input file name', type=str, required=True)
     parser.add_argument(
-        '-b',
-        '--subset_epa',
-        help='EPA Region Subset true/false',
-        type=bool,
-        required=False,
-        default=False)
+        '-s', '--species', nargs='+', help='species to plot', type=str,required=False, default={'OZONE'})
     parser.add_argument(
-        '-e',
-        '--epa_region',
-        help='EPA Region ACRONYMs',
-        required=False,
-        default='domain')
+        '-v', '--verbose', help='print debugging information', action='store_true', required=False)
     parser.add_argument(
-        '-n',
-        '--output_name',
-        help='Spatial bias plot Output base name',
-        type=str,
-        required=False,
-        default='CMAQ_AIRNOW')
+        '-b', '--subset_epa', help='EPA Region Subset true/false',type=bool, required=False, default=False)
+    parser.add_argument(
+        '-e', '--epa_region', help='EPA Region Acronyms', type=str, required=False, default='domain')
+    parser.add_argument(
+        '-n', '--output_name', help='Output base name',type=str, required=False, default='CMAQ_AIRNOW')
+    parser.add_argument(
+        '-sup', '--suppress_xwindow', help='Suppress X Window', action='store_true', required=False)
     parser.add_argument(
         '-r',
         '--regulatory',
@@ -198,8 +179,11 @@ if __name__ == '__main__':
         type=str,
         required=False,
         default=None)
+
     args = parser.parse_args()
 
+    finput      = args.files
+    verbose     = args.verbose
     paired_data = args.paired_data
     species     = args.species
     out_name    = args.output_name
@@ -209,11 +193,13 @@ if __name__ == '__main__':
     enddate     = args.enddate
     reg         = args.regulatory
 
-#load the paired dataframe 
+    #load the paired dataframe
+    
     df = load_paired_data(paired_data)
-    mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO', 'NO':'NO', 'NO2':'NO2', 'SO2':'SO2','NOX':'NOX','NO2Y':'NOY','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10','SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
+    mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO', 'NO':'NO', 'NO2':'NO2', 'SO2':'SO2','NOX':'NOX','NO2Y':'NOY','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10',
+                     'SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
     sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
- 
+
 # subset  only the correct region
     if subset is True:
      df.query('epa_region == '+'"'+region+'"',inplace=True)
@@ -270,4 +256,8 @@ if __name__ == '__main__':
 
      initial_datetime = dfnew_drop.time.min()
      # make the plots
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, region,outname)
+
+
+
+    make_plots(finput, dfnew_drop, sub_map.get(jj),
+               jj, verbose, region, outname)
