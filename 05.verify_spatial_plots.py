@@ -1,4 +1,5 @@
-#!/data/aqf2/barryb/anaconda2/envs/website/bin/python
+#!/usr/bin/env python
+##!/data/aqf2/barryb/anaconda2/envs/website/bin/python
 ##!/usr/bin/env python
 
 ###############################################################
@@ -73,7 +74,7 @@ def open_cmaq(finput):
 def load_paired_data(fname):
     return pd.read_hdf(fname)
 
-def make_spatial_plot(da, df, outname, proj, region='domain'): 
+def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'): 
     cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
 
     if region == 'domain':
@@ -89,11 +90,13 @@ def make_spatial_plot(da, df, outname, proj, region='domain'):
     ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=-1) 
-
-    date = pd.Timestamp(da.time.values) 
-    dt = date - initial_datetime
-    dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
-    plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
+    if startdate == None and enddate == None:
+     date = pd.Timestamp(da.time.values) 
+     dt = date - initial_datetime
+     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
+     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
+    else:
+     plt.title('average time period | CMAQ - AIRNOW ')
 
     cbar = ax.figure.get_axes()[1] 
     vmin, vmax = cbar.get_ybound() 
@@ -101,16 +104,20 @@ def make_spatial_plot(da, df, outname, proj, region='domain'):
     varname = [x for x in vars if x not in ['latitude','longitude']][0] 
     ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='w',linewidth=.08,vmin=vmin,vmax=vmax) 
     ax.set_extent(extent,crs=ccrs.PlateCarree())
-
-    savename = "{}.{}.{}.jpg".format(outname,
+    
+    if startdate == None and enddate == None:
+     savename = "{}.{}.{}.jpg".format(outname,
                                      initial_datetime.strftime('sp.%Y%m%d'),
                                      dtstr)
+    else:
+     savename = "{}.{}.jpg".format(outname,
+                                      'sp')
     print(savename)
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
-def make_plots(finput, paired_data, variable, obs_variable, verbose, region, outname):
-
+def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, enddate, region, outname):
+  if startdate == None and enddate == None:
     # open the files
     f = open_cmaq(finput)
     # get map projection
@@ -124,9 +131,13 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, region, out
         # loop over time
     for t in obj.time:
             date = pd.Timestamp(t.values)
-            print(date)
+            print(
+                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            print('Creating Plot:', obs_variable, 'at time:', date)
+            print(
+                ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time == pd.Timestamp(t.values),['latitude','longitude',obs_variable]]
-            make_spatial_plot(obj.sel(time=t), odf, outname, proj, region=region)
+            make_spatial_plot(obj.sel(time=t), odf, outname, proj, startdate, enddate, region=region)
 #            plots.append(dask.delayed(make_spatial_plot)
 #                         (obj.sel(time=t), odf, proj))
 #        plots dask.delayed(make_spatial_plot)(
@@ -135,8 +146,29 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, region, out
     # if paired_data is not None:
     #     ov = obs_variable[[index, 'latitude', 'longitude'].loc[obs_variable.time == t]
     # ax.scatter()
-
-
+  else:
+    # open the files
+    f = open_cmaq(finput)
+    # get map projection
+    proj = map_projection(f)
+    if paired_data is not None:
+        df = paired_data
+    # loop over varaible list
+    plots = []
+#    for index, var in enumerate(variable):
+    obj = f[variable]
+    sdate=pd.Timestamp(startdate)
+    edate=pd.Timestamp(enddate)
+    df_mean=df.groupby(['siteid'],as_index=False).mean()
+    print(
+        ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print('Creating Plot:', obs_variable, 'for period:', startdate, 'to ', enddate  )
+    print(
+        ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    odf_mean = df_mean[['latitude','longitude',obs_variable]]
+    mod_slice = obj.sel(time=slice(startdate,enddate)) 
+    mod_mean = mod_slice.mean(dim='time')
+    make_spatial_plot(mod_mean, odf_mean, outname, proj, startdate, enddate, region=region)
 
 if __name__ == '__main__':
 
@@ -260,4 +292,4 @@ if __name__ == '__main__':
 
 
     make_plots(finput, dfnew_drop, sub_map.get(jj),
-               jj, verbose, region, outname)
+               jj, verbose, startdate, enddate,region, outname)
