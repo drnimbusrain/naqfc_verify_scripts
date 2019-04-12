@@ -51,8 +51,8 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='pairs cmaq model data to aqs observations', formatter_class=ArgumentDefaultsHelpFormatter)
     
     parser.add_argument('-f', '--files',       help='string input model file directory/names', type=str, required=True)
-#    parser.add_argument('-d', '--startdates',  help='string input start date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)
-#    parser.add_argument('-e', '--enddates',    help='string input end date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)
+#    parser.add_argument('-sd', '--startdate',  help='string input start date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)
+#    parser.add_argument('-ed', '--enddate',    help='string input end date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)
     parser.add_argument('-s', '--species',     help='string/list input for obs species-variables to pair',type=str,nargs='+', required=False, default={'OZONE','PM2.5'})
     parser.add_argument('-o', '--output',      help='string output path for paired dataframe, stats, plots', type=str, required=False,default='./')
     parser.add_argument('-p', '--path',        help='string path to director of network observations', type=str, required=False, default='/data/aqf2/barryb/5xpm/AQS_DATA/')
@@ -63,8 +63,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     finput   = args.files
-#    start   = args.startdates
-#    end     = args.enddates 
+#    start   = args.startdate
+#    end     = args.enddate
     species  = args.species
     output   = args.output
     datapath = args.path

@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(description='calculates statistics from paired file', formatter_class=ArgumentDefaultsHelpFormatter)
     
-    parser.add_argument('-f',   '--files',       help='string input paired file directory/names', type=str, required=True)
+    parser.add_argument('-p',   '--paired_data',       help='string input paired file directory/names', type=str, required=True)
     parser.add_argument('-r',   '--regulatory',  help='boolean set to True fore 8-hrmax  or 24-ave NAAQS regulatory calcs', type=bool, required=False, default=False)
     parser.add_argument('-sd',  '--startdate',   help='string start date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
     parser.add_argument('-ed',  '--enddate',     help='string end date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument('-v',   '--verbose',     help='print debugging information', action='store_true', required=False)
     args = parser.parse_args()
 
-    finput       = args.files
+    finput       = args.paired_data
     reg          = args.regulatory
     networks     = args.networks
     startdate    = args.startdate

@@ -94,7 +94,7 @@ if __name__ == '__main__':
         description='Make Taylor Plots for each time step or total period in files',
         formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument(
-        '-f',
+        '-p',
         '--paired_data',
         help='paired data input file',
         type=str,
