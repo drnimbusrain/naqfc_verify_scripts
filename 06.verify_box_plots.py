@@ -27,6 +27,7 @@ import seaborn as sns
 import sys
 #sys.path.append('/data/aqf/patrickc/MONET/')
 import monet
+from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum
 
 sns.set_context('notebook')
 
@@ -34,6 +35,15 @@ plt.ioff()
 '''
 Simple utility to make box-whisker plots
 '''
+
+
+def  make_24hr_regulatory(df,col=None):
+     """ Make 24-hour averages """
+     return calc_24hr_ave(df,col)
+
+def  make_8hr_regulatory(df,col=None):
+     """ Make 8-hour rolling average daily """
+     return calc_8hr_rolling_max(df,col,window=8)
 
 
 def chdir(fname):
