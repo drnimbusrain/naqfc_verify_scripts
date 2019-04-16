@@ -1,5 +1,5 @@
 # naqfc_verify_scripts
-Command-line MONETv2 Python Scripts for NAQFC AIRNOW-CMAQ Verification
+New command-line python scripts for NAQFC AIRNOW-CMAQ verification based on MONETv2.
 
 Invoking each script with -help will show the list of arguments available.
 
