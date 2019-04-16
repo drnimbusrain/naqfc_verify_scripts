@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 ##!/data/aqf2/barryb/anaconda2/envs/website/bin/python
-##!/usr/bin/env python
 
 ###############################################################
 # < next few lines under version control, D O  N O T  E D I T >
@@ -17,7 +16,7 @@ __license__ = 'GPL'
 import os
 import subprocess
 import sys
-sys.path.append('/data/aqf/patrickc/MONET/')
+#sys.path.append('/data/aqf/patrickc/MONET/')
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import dask

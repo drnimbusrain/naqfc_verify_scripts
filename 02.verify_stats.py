@@ -1,4 +1,5 @@
-#!/data/aqf2/barryb/anaconda2/envs/website/bin/python
+#!/usr/bin/env python
+##!/data/aqf2/barryb/anaconda2/envs/website/bin/python
 
 __author__  = 'Patrick Campbell'
 __email__   = 'patrick.c.campbell@noaa.gov'
@@ -11,7 +12,7 @@ __license__ = 'GPL'
 import os
 from glob import glob
 import sys
-sys.path.append('/data/aqf/patrickc/MONET/')
+#sys.path.append('/data/aqf/patrickc/MONET/')
 
 import subprocess
 from distutils.spawn import find_executable
