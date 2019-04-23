@@ -11,7 +11,7 @@ __license__ = 'GPL'
 
 import os
 from glob import glob
-#import sys
+import sys
 #sys.path.append('/data/aqf/patrickc/MONET/')
 
 import subprocess
@@ -102,14 +102,14 @@ if __name__ == '__main__':
          sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
          invert_sub_map = dict(map(reversed,sub_map.items()))
          dfpair=pair_point(da,df,invert_sub_map,interp) 
-         dfpair.to_csv('AIRNOW_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.csv')
+#         dfpair.to_csv('AIRNOW_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.csv')
          dfpair.to_hdf('AIRNOW_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.hdf','dfpair',format='table',mode='w')
 
       elif ii == 'cmaq' and jj == 'aqs':
          mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO', 'NO':'NO', 'NO2':'NO2', 'SO2':'SO2','NONOxNOy':'NOX','NONOxNOy':'NOY','VOC':'VOC'}
          sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
          dfpair=pair_point(da,df,invert_sub_map,interp)
-         dfpair.to_csv('AQS_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.csv')
+#         dfpair.to_csv('AQS_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.csv')
          dfpair.to_hdf('AQS_CMAQ_'+start.strftime('%Y-%m-%d-%H')+'_'+end.strftime('%Y-%m-%d-%H')+'_pair.hdf','dfpair',format='table',mode='w')    
          
       else:

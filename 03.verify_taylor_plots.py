@@ -60,7 +60,7 @@ def make_taylor_diagram(df, col1, col2, scale, savename):
         df, col1=col1, col2=col2, label1='AIRNOW', label2='CMAQ', scale=scale)
     date = df.time.min()
     plt.legend(loc=(.8, .8))
-    name = "{}.{}".format(savename, date.strftime('tyr.%Y%m%d%H.png'))
+    name = "{}.{}".format(savename, date.strftime('tyr.%Y%m%d%H.jpg'))
     
     monet.plots.savefig(
         name, bbox_inches='tight', dpi=100, loc=3, decorate=True)
