@@ -84,7 +84,7 @@ def make_spatial_bias_plot(df,
   
     plt.tight_layout(pad=0)
     savename = "{}.{}.{}.jpg".format(out_name,
-                                     initial_datetime.strftime('spbias.%Y%m%d'),
+                                     initial_datetime.strftime('sb.%Y%m%d'),
                                      dtstr)
     print(savename)
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
