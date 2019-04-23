@@ -21,12 +21,12 @@ cd $data_dir
 files="aqm.${yyyymmddform}.t12z.aconc-pm25.ncf"
 
 #naqfc verify scripts 
-pair=/data/aqf/patrickc/naqfc_verify_scripts/01.verify_pair.py
-stats=/data/aqf/patrickc/naqfc_verify_scripts/02.verify_stats.py
-taylor=/data/aqf/patrickc/naqfc_verify_scripts/03.verify_taylor_plots.py
-bias=/data/aqf/patrickc/naqfc_verify_scripts/04.verify_spatial_bias.py
-spatial=/data/aqf/patrickc/naqfc_verify_scripts/05.verify_spatial_plots.py
-box=/data/aqf/patrickc/naqfc_verify_scripts/06.verify_box_plots.py
+pair=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/naqfc_verify_scripts/01.verify_pair.py
+stats=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/naqfc_verify_scripts/02.verify_stats.py
+taylor=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/naqfc_verify_scripts/03.verify_taylor_plots.py
+bias=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell//naqfc_verify_scripts/04.verify_spatial_bias.py
+spatial=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/naqfc_verify_scripts/05.verify_spatial_plots.py
+box=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/naqfc_verify_scripts/06.verify_box_plots.py
 
 # pair the data
 ${pair} -f ${files} 
