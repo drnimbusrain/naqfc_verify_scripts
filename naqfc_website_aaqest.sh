@@ -50,24 +50,24 @@ done
 
 # make GIFS
 ##########################################################################################################
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
+for i in '5X' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2P5'; do
     echo "${i}.${j}"
-    convert -delay 40 -loop 0 ${yyyymmddform}.5X.${j}.${i}.sp.*.jpg ${yyyymmddform}.5X.${j}.${i}.sp.gif
+    convert -delay 40 -loop 0 ${yyyymmddform}.${i}.${j}.spbias.*.jpg ${yyyymmddform}.${i}.${j}.spbias.gif
   done
 done
 
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
+for i in '5X' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2P5'; do
     echo "${i}.${j}"
-    convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.sb.*.jpg CMAQ_AIRNOW.${j}.${i}.sb.gif
+    convert -delay 40 -loop 0 ${yyyymmddform}.${i}.${j}.sp.*.jpg ${yyyymmddform}.${i}.${j}.sp.gif
   done
 done
 
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
+for i in '5X' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2P5'; do
     echo "${i}.${j}"
-    convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.tyr.*.jpg CMAQ_AIRNOW.${j}.${i}.tyr.gif
+    convert -delay 40 -loop 0 ${yyyymmddform}.${i}.${j}.tyr.*.jpg ${yyyymmddform}.${i}.${j}.tyr.gif
   done
 done
 ##########################################################################################################
