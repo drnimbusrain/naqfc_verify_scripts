@@ -100,7 +100,7 @@ if __name__ == '__main__':
         type=str,
         required=True)
     parser.add_argument(
-        '-s', '--species', nargs='+', help='Species', required=False, default={'OZONE'})
+        '-s', '--species', nargs='+', help='Species', required=False, default=['OZONE'])
     parser.add_argument(
         '-b',
         '--subset_epa',
@@ -211,10 +211,18 @@ if __name__ == '__main__':
       startdatename = str(datetime.datetime.strftime(startdatename_obj,'%Y-%m-%d_%H'))
       enddatename = str(datetime.datetime.strftime(enddatename_obj,'%Y-%m-%d_%H'))
       outname = "{}.{}.{}.{}.{}".format(out_name, jj, startdatename, enddatename,region)
+      if reg is True:
+       outname = "{}.{}.{}.{}.{}.{}".format(out_name,jj,startdatename, enddatename,region,'reg')
+      if jj == 'PM2.5':
+       outname.replace('PM2.5','PM2P5')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,jj, region)
-        
+      if reg is True:
+       outname = "{}.{}.{}.{}.{}.{}".format(out_name,jj,startdatename, enddatename,region,'reg')
+      if jj == 'PM2.5':
+       outname.replace('PM2.5','PM2P5')  
+
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)]) 
 # make the plots
      make_plots(dfnew, sub_map.get(jj), jj, startdate, enddate, scale, outname)

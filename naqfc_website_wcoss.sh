@@ -33,14 +33,14 @@ ${pair} -f ${files}
 
 # make spatial overlay plots for all regions
 ${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} 
-for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   echo ${i}
   ${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -b True -e ${i}
 done
 
 # create spatial bias plots
 ${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} 
-for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   echo ${i}
   ${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'}  -b True -e ${i}
 done 
@@ -50,31 +50,31 @@ done
 
 # create fv3_aeronet_taylor
 ${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'}
-for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   echo ${i}
   ${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -b True -e ${i}
 done
 
 # make GIFS
 ##########################################################################################################
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2.5'; do
     echo "${i}.${j}"
-    xargs --max-procs 10 convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.sp.*.jpg CMAQ_AIRNOW.${j}.${i}.sp.gif
+    convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.sp.*.jpg CMAQ_AIRNOW.${j}.${i}.sp.gif
   done
 done
 
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2.5'; do
     echo "${i}.${j}"
-    xargs --max-procs 10 convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.sb.*.jpg CMAQ_AIRNOW.${j}.${i}.sb.gif
+    convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.sb.*.jpg CMAQ_AIRNOW.${j}.${i}.sb.gif
   done
 done
 
-for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10' 'AK' 'PR' 'VI'; do
+for i in 'domain' 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   for j in 'OZONE' 'PM2.5'; do
     echo "${i}.${j}"
-    xargs --max-procs 10 convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.tyr.*.jpg CMAQ_AIRNOW.${j}.${i}.tyr.gif
+    convert -delay 40 -loop 0 CMAQ_AIRNOW.${j}.${i}.tyr.*.jpg CMAQ_AIRNOW.${j}.${i}.tyr.gif
   done
 done
 ##########################################################################################################
