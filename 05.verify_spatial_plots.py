@@ -274,18 +274,18 @@ if __name__ == '__main__':
       enddatename_obj   = datetime.datetime.strptime(enddate, '%Y-%m-%d %H:%M:%S')
       startdatename = str(datetime.datetime.strftime(startdatename_obj,'%Y-%m-%d_%H'))
       enddatename = str(datetime.datetime.strftime(enddatename_obj,'%Y-%m-%d_%H'))
-      outname = "{}.{}.{}.{}.{}".format(out_name, jj, startdatename, enddatename,region)
+      outname = "{}.{}.{}.{}.{}".format(out_name, region, jj, startdatename, enddatename)
       if reg is True:
-       outname = "{}.{}.{}.{}.{}.{}".format(out_name,jj,startdatename, enddatename,region,'reg')
+       outname = "{}.{}.{}.{}.{}.{}".format(out_name,region, jj,startdatename, enddatename,'reg')
       if jj == 'PM2.5':
        outname.replace('PM2.5','PM2P5')
       if region == 'domain':
        outname.replace('domain','5X')
      else:
       dfnew = df2
-      outname = "{}.{}.{}".format(out_name,jj, region)
+      outname = "{}.{}.{}".format(out_name,region, jj)
       if reg is True:
-       outname = "{}.{}.{}.{}".format(out_name,jj,region,'reg')
+       outname = "{}.{}.{}.{}".format(out_name,region, jj, 'reg')
       if jj == 'PM2.5':
        outname.replace('PM2.5','PM2P5')
       if region == 'domain':
