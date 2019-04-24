@@ -290,5 +290,5 @@ if __name__ == '__main__':
 
 
 
-    make_plots(finput, dfnew_drop, sub_map.get(jj),
+     make_plots(finput, dfnew_drop, sub_map.get(jj),
                jj, verbose, startdate, enddate,region, outname)
