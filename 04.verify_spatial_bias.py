@@ -84,7 +84,7 @@ def make_spatial_bias_plot(df,
   
     plt.tight_layout(pad=0)
     savename = "{}.{}.{}.jpg".format(out_name,
-                                     initial_datetime.strftime('sb.%Y%m%d'),
+                                     initial_datetime.strftime('spbias.%Y%m%d'),
                                      dtstr)
     print(savename)
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
@@ -262,6 +262,8 @@ if __name__ == '__main__':
        outname = "{}.{}.{}.{}.{}.{}".format(out_name,jj,startdatename, enddatename,region,'reg')
       if jj == 'PM2.5':
        outname.replace('PM2.5','PM2P5')
+      if region == 'domain':
+       outname.replace('domain','5X')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,jj, region)
@@ -269,6 +271,8 @@ if __name__ == '__main__':
        outname = "{}.{}.{}.{}".format(out_name,jj,region,'reg')
       if jj == 'PM2.5':
        outname.replace('PM2.5','PM2P5')
+      if region == 'domain':
+       outname.replace('domain','5X')
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 
