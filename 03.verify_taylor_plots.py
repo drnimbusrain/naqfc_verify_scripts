@@ -35,6 +35,7 @@ plt.ioff()
 '''
 Simple utility to make Taylor from the NAQFC forecast
 '''
+initial_datetime = None
 
 def  make_24hr_regulatory(df,col=None):
      """ Make 24-hour averages """
@@ -55,12 +56,15 @@ def load_paired_data(fname):
     return pd.read_hdf(fname)
 
 
-def make_taylor_diagram(df, col1, col2, scale, savename):
+def make_taylor_diagram(df, col1, col2, scale, savename,date=None):
     dia = monet.plots.plots.taylordiagram(
         df, col1=col1, col2=col2, label1='AIRNOW', label2='CMAQ', scale=scale)
     date = df.time.min()
+    #date = pd.Timestamp(date)
+    #dt = date - initial_datetime
+    #dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
     plt.legend(loc=(.8, .8))
-    name = "{}.{}".format(savename, date.strftime('tyr.%Y%m%d%H.jpg'))
+    name = "{}.{}.jpg".format(savename, date.strftime('tyr.%d%H'))
     
     monet.plots.savefig(
         name, bbox_inches='tight', dpi=100, loc=3, decorate=True)
@@ -77,16 +81,18 @@ def make_plots(df, variable, obs_variable, startdate, enddate, scale, out_name):
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time ==
                           date, ['time', 'latitude', 'longitude', obs_variable, variable]]
-            make_taylor_diagram(odf, col1=obs_variable, col2=variable, scale=scale, savename=out_name)
-            print(t)
+            if ~odf.empty:
+              make_taylor_diagram(odf, col1=obs_variable, col2=variable, scale=scale, savename=out_name, date=t)
         #make total period taylor plot
         else:
+          sdate=pd.Timestamp(startdate)
+          edate=pd.Timestamp(enddate)
           print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
           print('Creating Plot:', obs_variable, 'for period:', startdate, 'to ', enddate  )
           print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-          make_taylor_diagram(df, col1=obs_variable, col2=variable, scale=scale, savename=out_name)         
+          make_taylor_diagram(df, col1=obs_variable, col2=variable, scale=scale, savename=out_name, date=edate)         
 
 if __name__ == '__main__':
 
@@ -214,18 +220,18 @@ if __name__ == '__main__':
       if reg is True:
        outname = "{}.{}.{}.{}.{}.{}".format(out_name,region, jj,startdatename, enddatename,'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,region, jj)
       if reg is True:
        outname = "{}.{}.{}.{}".format(out_name,region, jj,'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace("PM2.5","PM2P5")
       if region == 'domain':
-       outname.replace('domain','5X')  
+       outname = outname.replace("domain","5X")  
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)]) 
 # make the plots

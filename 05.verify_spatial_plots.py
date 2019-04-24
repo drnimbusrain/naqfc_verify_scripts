@@ -92,7 +92,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     if startdate == None and enddate == None:
      date = pd.Timestamp(da.time.values) 
      dt = date - initial_datetime
-     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
+     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
      plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
     else:
      plt.title('average time period | CMAQ - AIRNOW ')
@@ -106,7 +106,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     
     if startdate == None and enddate == None:
      savename = "{}.{}.{}.jpg".format(outname,
-                                     initial_datetime.strftime('sp.%Y%m%d'),
+                                     initial_datetime.strftime('sp'),
                                      dtstr)
     else:
      savename = "{}.{}.jpg".format(outname,
@@ -278,18 +278,18 @@ if __name__ == '__main__':
       if reg is True:
        outname = "{}.{}.{}.{}.{}.{}".format(out_name,region, jj,startdatename, enddatename,'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,region, jj)
       if reg is True:
        outname = "{}.{}.{}.{}".format(out_name,region, jj, 'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 

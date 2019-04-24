@@ -25,28 +25,37 @@ spatial=/data/aqf/patrickc/naqfc_verify_scripts/05.verify_spatial_plots.py
 box=/data/aqf/patrickc/naqfc_verify_scripts/06.verify_box_plots.py
 
 # pair the data
-${pair} -f ${files} 
+#${pair} -f ${files} 
 
-# spatial overlay plots
-${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -n ${yyyymmddform} 
-for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
-  echo ${i}
-  ${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -b True -e ${i} -n ${yyyymmddform}
-done
 
-# spatial bias plots
-${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -n ${yyyymmddform}
-for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
-  echo ${i}
-  ${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'}  -b True -e ${i} -n ${yyyymmddform}
-done 
+
+
 
 # create taylor
-${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -n ${yyyymmddform}
+${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
 for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
   echo ${i}
-  ${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s {'OZONE','PM2.5'} -b True -e ${i} -n ${yyyymmddform}
+  ${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -b True -e ${i} -n ${yyyymmddform}
 done
+
+
+
+# spatial bias plots
+${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
+for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
+  echo ${i}
+  ${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s 'OZONE' 'PM2.5'  -b True -e ${i} -n ${yyyymmddform}
+done
+
+
+# spatial overlay plots
+${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s 'OZONE','PM2.5' -n ${yyyymmddform}
+for i in 'R1' 'R2' 'R3' 'R4' 'R5' 'R6' 'R7' 'R8' 'R9' 'R10'; do
+  echo ${i}
+  ${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd72hr}-12_pair.hdf -s  'OZONE' 'PM2.5' -b True -e ${i} -n ${yyyymmddform}
+done
+
+
 
 # make GIFS
 ##########################################################################################################
