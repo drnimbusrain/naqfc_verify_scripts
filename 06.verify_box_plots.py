@@ -213,18 +213,18 @@ if __name__ == '__main__':
       if reg is True:
        outname = "{}.{}.{}.{}.{}.{}".format(out_name, region, jj,startdatename, enddatename,'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name,region, jj)
       if reg is True:
        outname = "{}.{}.{}.{}".format(out_name,region, jj, 'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 

@@ -67,7 +67,7 @@ def make_spatial_bias_plot(df,
         df, col1=col1, col2=col2, map_kwargs=dict(states=True),**kwargs)
     date = pd.Timestamp(date)
     dt = date - initial_datetime
-    dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
+    dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
         
     if region == 'domain':
@@ -84,7 +84,7 @@ def make_spatial_bias_plot(df,
   
     plt.tight_layout(pad=0)
     savename = "{}.{}.{}.jpg".format(out_name,
-                                     initial_datetime.strftime('spbias.%Y%m%d'),
+                                     initial_datetime.strftime('spbias'),
                                      dtstr)
     print(savename)
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
@@ -102,7 +102,6 @@ def make_plots(df, variable, obs_variable, startdate, enddate, region,out_name):
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time ==
                           date, ['time', 'latitude', 'longitude', obs_variable, variable]]
-            print(t)
             if ~odf.empty:
                 make_spatial_bias_plot(
                     odf,
@@ -261,18 +260,18 @@ if __name__ == '__main__':
       if reg is True:
        outname = "{}.{}.{}.{}.{}.{}".format(out_name,region, jj,startdatename, enddatename,'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain','5X')
      else:
       dfnew = df2
       outname = "{}.{}.{}".format(out_name, region, jj)
       if reg is True:
        outname = "{}.{}.{}.{}".format(out_name,region, jj, 'reg')
       if jj == 'PM2.5':
-       outname.replace('PM2.5','PM2P5')
+       outname = outname.replace('PM2.5','PM2P5')
       if region == 'domain':
-       outname.replace('domain','5X')
+       outname = outname.replace('domain', '5X')
 
      dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 

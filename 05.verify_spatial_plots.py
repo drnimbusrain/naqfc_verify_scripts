@@ -104,10 +104,10 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region="domain"
     plt.gcf().canvas.draw()
     plt.tight_layout(pad=-1)
     if startdate == None and enddate == None:
-        date = pd.Timestamp(da.time.values)
-        dt = date - initial_datetime
-        dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
-        plt.title(date.strftime("time=%Y/%m/%d %H:00 | CMAQ - AIRNOW "))
+     date = pd.Timestamp(da.time.values) 
+     dt = date - initial_datetime
+     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
+     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
     else:
         plt.title("average time period | CMAQ - AIRNOW ")
 
@@ -129,9 +129,10 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region="domain"
     ax.set_extent(extent, crs=ccrs.PlateCarree())
 
     if startdate == None and enddate == None:
-        savename = "{}.{}.{}.jpg".format(
-            outname, initial_datetime.strftime("sp.%Y%m%d"), dtstr
-        )
+
+     savename = "{}.{}.{}.jpg".format(outname,
+                                     initial_datetime.strftime('sp'),
+                                     dtstr)
     else:
         savename = "{}.{}.jpg".format(outname, "sp")
     print(savename)
@@ -343,93 +344,4 @@ if __name__ == "__main__":
 
     # Loop through species
     for jj in species:
-        df_replace = df.replace(0.0, np.nan)  # Replace all exact 0.0 values with nan
-        df_drop = df_replace.dropna(
-            subset=[jj, sub_map.get(jj)]
-        )  # Drops all rows with obs species = NaN
 
-        # Converts OZONE, PM10, or PM2.5 dataframe to NAAQS regulatory values
-        if jj == "OZONE" and reg is True:
-            df2 = make_8hr_regulatory(df_drop, [jj, sub_map.get(jj)]).rename(
-                index=str,
-                columns={jj + "_y": jj, sub_map.get(jj) + "_y": sub_map.get(jj)},
-            )
-        elif jj == "PM2.5" and reg is True:
-            df2 = make_24hr_regulatory(df_drop, [jj, sub_map.get(jj)]).rename(
-                index=str,
-                columns={jj + "_y": jj, sub_map.get(jj) + "_y": sub_map.get(jj)},
-            )
-        elif jj == "PM10" and reg is True:
-            df2 = make_24hr_regulatory(df_drop, [jj, sub_map.get(jj)]).rename(
-                index=str,
-                columns={jj + "_y": jj, sub_map.get(jj) + "_y": sub_map.get(jj)},
-            )
-        else:
-            df2 = df_drop
-        # Convert airnow met variable if necessary:
-        if jj == "WS":
-            df2.loc[:, "WS"] = df2.loc[:, "WS"] * 0.514  # convert obs knots-->m/s
-            df2.query(
-                "WS > 0.2", inplace=True
-            )  # Filter out calm WS obs (< 0.2 m/s), should not be trusted--creates artificially larger postive  model bias
-        elif jj == "BARPR":
-            df2.loc[:, "PRSFC"] = (
-                df2.loc[:, "PRSFC"] * 0.01
-            )  # convert model Pascals-->millibars
-        elif jj == "PRECIP":
-            df2.loc[:, "PRECIP"] = df2.loc[:, "PRECIP"] * 0.1  # convert obs mm-->cm
-        elif jj == "TEMP":
-            df2.loc[:, "TEMP2"] = df2.loc[:, "TEMP2"] - 273.16  # convert model K-->C
-        elif jj == "RHUM":
-            # convert model mixing ratio to relative humidity
-            df2.loc[:, "Q2"] = get_relhum(
-                df2.loc[:, "TEMP2"], df2.loc[:, "PRSFC"], df2.loc[:, "Q2"]
-            )
-        # df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
-        else:
-            df2 = df2
-        # subset for period, or use output frequency
-        if startdate != None and enddate != None:
-            mask = (df2["time"] >= startdate) & (df2["time"] <= enddate)
-            dfnew = df2.loc[mask]
-            import datetime
-
-            startdatename_obj = datetime.datetime.strptime(
-                startdate, "%Y-%m-%d %H:%M:%S"
-            )
-            enddatename_obj = datetime.datetime.strptime(enddate, "%Y-%m-%d %H:%M:%S")
-            startdatename = str(
-                datetime.datetime.strftime(startdatename_obj, "%Y-%m-%d_%H")
-            )
-            enddatename = str(
-                datetime.datetime.strftime(enddatename_obj, "%Y-%m-%d_%H")
-            )
-            outname = "{}.{}.{}.{}.{}".format(
-                out_name, jj, startdatename, enddatename, region
-            )
-            if reg is True:
-                outname = "{}.{}.{}.{}.{}.{}".format(
-                    out_name, jj, startdatename, enddatename, region, "reg"
-                )
-        else:
-            dfnew = df2
-            outname = "{}.{}.{}".format(out_name, jj, region)
-            if reg is True:
-                outname = "{}.{}.{}.{}".format(out_name, jj, region, "reg")
-
-        dfnew_drop = dfnew.dropna(subset=[jj, sub_map.get(jj)])
-
-        initial_datetime = dfnew_drop.time.min()
-        # make the plots
-
-    make_plots(
-        finput,
-        dfnew_drop,
-        sub_map.get(jj),
-        jj,
-        verbose,
-        startdate,
-        enddate,
-        region,
-        outname,
-    )
