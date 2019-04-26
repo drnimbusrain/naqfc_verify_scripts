@@ -212,7 +212,8 @@ if __name__ == '__main__':
     df = load_paired_data(paired_data)
     mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO', 'NO':'NO', 'NO2':'NO2', 'SO2':'SO2','NOX':'NOX','NO2Y':'NOY','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10','SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
     sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
- 
+    if region is "domain":
+     subset = False 
 # subset  only the correct region
     if subset is True:
      df.query('epa_region == '+'"'+region+'"',inplace=True)
