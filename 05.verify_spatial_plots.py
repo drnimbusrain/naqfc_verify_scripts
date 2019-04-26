@@ -253,17 +253,19 @@ if __name__ == '__main__':
       df2=df_drop
 #Convert airnow met variable if necessary:
      if jj == 'WS':
-      df2.loc[:,'WS']=df2.loc[:,'WS']*0.514  #convert obs knots-->m/s
+      df2.loc[:,'WS']=df2.loc[:,'WS']*0.514  #convert obs knots-->m/s ***Conform to model units for overlay ***
       df2.query('WS > 0.2',inplace=True)  #Filter out calm WS obs (< 0.2 m/s), should not be trusted--creates artificially larger postive  model bias
      elif jj == 'BARPR':
-      df2.loc[:,'PRSFC']=df2.loc[:,'PRSFC']*0.01 #convert model Pascals-->millibars
+      #df2.loc[:,'PRSFC']=df2.loc[:,'PRSFC']*0.01 #convert model Pascals-->millibars
+      df2.loc[:,'BARPR']=df2.loc[:,'BARPR']/0.01 #convert obs millibars-->Pascals ***Conform to model units for overlay ***
      elif jj == 'PRECIP':
       df2.loc[:,'PRECIP']=df2.loc[:,'PRECIP']*0.1 #convert obs mm-->cm
      elif jj == 'TEMP':
-      df2.loc[:,'TEMP2'] = df2.loc[:,'TEMP2']-273.16 #convert model K-->C
+      #df2.loc[:,'TEMP2'] = df2.loc[:,'TEMP2']-273.16 #convert model K-->C
+      df2.loc[:,'TEMP'] = df2.loc[:,'TEMP']+273.16 #convert obs C-->K ***Conform to model units for overlay ***
      elif jj == 'RHUM':
      #convert model mixing ratio to relative humidity
-      df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])
+      df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])  # *** Currently not supported for spatial overlay ***
      #df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
      else:
       df2=df2

@@ -153,8 +153,8 @@ if __name__ == '__main__':
     if (ii == 'cmaq') & (jj == 'airnow'):
         mapping_table = {
             'OZONE': 'O3',
-            'PM2.5': 'PM25',
-            'PM10': 'PM10',
+            'PM2.5': 'PM25_TOT',
+            'PM10': 'PMC_TOT',
             'CO': 'CO',
             'NO': 'NO',
             'NO2': 'NO2',
@@ -183,8 +183,8 @@ if __name__ == '__main__':
     elif ii == 'cmaq' and jj == 'aqs':
         mapping_table = {
             'OZONE': 'O3',
-            'PM2.5': 'PM25',
-            'PM10': 'PM10',
+            'PM2.5': 'PM25_TOT',
+            'PM10': 'PMC_TOT',
             'CO': 'CO',
             'NO': 'NO',
             'NO2': 'NO2',
