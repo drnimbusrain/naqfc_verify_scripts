@@ -92,7 +92,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     if startdate == None and enddate == None:
      date = pd.Timestamp(da.time.values) 
      dt = date - initial_datetime
-     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
+     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
      plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
     else:
      plt.title('average time period | CMAQ - AIRNOW ')
@@ -267,6 +267,8 @@ if __name__ == '__main__':
      #convert model mixing ratio to relative humidity
       df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])  # *** Currently not supported for spatial overlay ***
      #df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
+     elif jj == 'CO':
+      df2.loc[:,'CO']=df2.loc[:,'CO']*1000.0 #convert obs ppm-->ppb
      else:
       df2=df2
 #subset for period, or use output frequency

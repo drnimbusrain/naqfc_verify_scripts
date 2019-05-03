@@ -205,6 +205,8 @@ if __name__ == '__main__':
      #convert model mixing ratio to relative humidity
       df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])
      # df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
+     elif jj == 'CO':
+      df2.loc[:,'CO']=df2.loc[:,'CO']*1000.0 #convert obs ppm-->ppb
      else:
       df2=df2
 #subset for period, or use output frequency
