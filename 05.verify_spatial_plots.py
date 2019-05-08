@@ -79,8 +79,8 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     if region == 'domain':
      latmin= 25.0
      lonmin=-130.0
-     latmax= 55.0
-     lonmax=-55.0
+     latmax= 48.0
+     lonmax=-70.0
     else:
      from monet.util.tools import get_epa_region_bounds as get_epa_bounds
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
@@ -88,7 +88,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     extent = [lonmin,lonmax,latmin,latmax]
     ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,cmap=plt.cm.get_cmap('jet')) 
     plt.gcf().canvas.draw() 
-    plt.tight_layout(pad=-1)
+    plt.tight_layout(pad=0)
     if startdate == None and enddate == None:
      date = pd.Timestamp(da.time.values) 
      dt = date - initial_datetime
