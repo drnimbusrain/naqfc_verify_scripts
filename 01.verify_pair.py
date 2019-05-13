@@ -59,6 +59,7 @@ if __name__ == '__main__':
         '-f',
         '--files',
         help='string input model file directory/names',
+        nargs='+',
         type=str,
         required=True)
     #    parser.add_argument('-sd', '--startdate',  help='string input start date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)                                                                                        
