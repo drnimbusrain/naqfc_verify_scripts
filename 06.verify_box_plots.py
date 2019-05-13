@@ -56,7 +56,7 @@ def load_paired_data(fname):
     return pd.read_hdf(fname)
 
 
-def make_plots(df, variable, obs_variable, startdate, enddate, out_name):
+def make_plots(df, variable, obs_variable, startdate, enddate, vmin, vmax, out_name):
     
     print(
             ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -64,7 +64,7 @@ def make_plots(df, variable, obs_variable, startdate, enddate, out_name):
     print(
             ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")    
  
-    make_boxplot_epa(df, out_name, startdate, enddate, col1=obs_variable, col2=variable)
+    make_boxplot_epa(df, out_name, startdate, enddate, vmin, vmax, col1=obs_variable, col2=variable)
 
 
 def make_boxplot_epa(
@@ -72,8 +72,10 @@ def make_boxplot_epa(
         savename,
         startdate,
         enddate,
+        vmin,
+        vmax,
         col1='OZONE',
-        col2='O3',
+        col2='O3'
 ):
     from monet.util.tools import get_epa_region_df as epard
     from monet.plots import savefig
@@ -89,6 +91,8 @@ def make_boxplot_epa(
     f, ax = plt.subplots(figsize=(10, 5))
     sns.boxplot(ax=ax, x='EPA_ACRO', y=col1, hue='Legend', data=dfn)
     sns.despine()
+    if vmin != None and vmax != None:
+     plt.ylim(vmin, vmax)
     plt.legend(loc=2)
     plt.tight_layout(pad=0)
     name = "{}.bp.jpg".format(savename)
@@ -154,6 +158,10 @@ if __name__ == '__main__':
         help='EPA Region ACRONYM',
         required=False,
         default='domain')
+    parser.add_argument(
+        '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
+    parser.add_argument(
+        '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
     args = parser.parse_args()
 
     paired_data = args.paired_data
@@ -163,6 +171,8 @@ if __name__ == '__main__':
     enddate     = args.enddate
     reg         = args.regulatory
     region      = args.epa_region
+    vmin        = args.miny_scale
+    vmax        = args.maxy_scale
 
     #load the paired dataframe
     df = load_paired_data(paired_data)
@@ -233,4 +243,4 @@ if __name__ == '__main__':
      initial_datetime = dfnew_drop.time.min()
      # make the plots
 
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, outname)
+     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, vmin, vmax, outname)
