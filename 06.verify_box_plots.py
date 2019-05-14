@@ -55,7 +55,7 @@ def load_paired_data(fname):
     return pd.read_hdf(fname)
 
 
-def make_plots(df, variable, obs_variable, startdate, enddate, vmin, vmax, out_name):
+def make_plots(df, variable, obs_variable, startdate, enddate, vmin, vmax, ylog, out_name):
     
     print(
             ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -63,7 +63,7 @@ def make_plots(df, variable, obs_variable, startdate, enddate, vmin, vmax, out_n
     print(
             ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")    
  
-    make_boxplot_epa(df, out_name, startdate, enddate, vmin, vmax, col1=obs_variable, col2=variable)
+    make_boxplot_epa(df, out_name, startdate, enddate, vmin, vmax, ylog, col1=obs_variable, col2=variable)
 
 
 def make_boxplot_epa(
@@ -73,6 +73,7 @@ def make_boxplot_epa(
         enddate,
         vmin,
         vmax,
+        ylog,
         col1='OZONE',
         col2='O3'
 ):
@@ -92,6 +93,8 @@ def make_boxplot_epa(
     sns.despine()
     if vmin != None and vmax != None:
      plt.ylim(vmin, vmax)
+    if ylog == True:
+     plt.yscale('log')
     plt.legend(loc=2)
     plt.tight_layout(pad=0)
     name = "{}.bp.jpg".format(savename)
@@ -161,6 +164,8 @@ if __name__ == '__main__':
         '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
     parser.add_argument(
         '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
+    parser.add_argument(
+        '-ylog', '--ylog_scale', help='Set static max y-scale', type=bool, required=False, default=False)
     args = parser.parse_args()
 
     paired_data = args.paired_data
@@ -172,6 +177,7 @@ if __name__ == '__main__':
     region      = args.epa_region
     vmin        = args.miny_scale
     vmax        = args.maxy_scale
+    ylog        = args.ylog_scale
 
     #load the paired dataframe
     df = load_paired_data(paired_data)
@@ -241,4 +247,4 @@ if __name__ == '__main__':
      initial_datetime = dfnew_drop.time.min()
      # make the plots
 
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, vmin, vmax, outname)
+     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, vmin, vmax, ylog, outname)

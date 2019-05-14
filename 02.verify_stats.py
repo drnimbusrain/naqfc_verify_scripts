@@ -130,8 +130,6 @@ if __name__ == '__main__':
     parser.add_argument('-r',   '--regulatory',  help='boolean set to True fore 8-hrmax  or 24-ave NAAQS regulatory calcs', type=bool, required=False, default=False)
     parser.add_argument('-sd',  '--startdate',   help='string start date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
     parser.add_argument('-ed',  '--enddate',     help='string end date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
-    parser.add_argument('-n',   '--networks',    help='string/list input for networks to do stats',type=str,nargs='+', required=False, default=['airnow'])
-    parser.add_argument('-m',   '--models',      help='string/list input models: cmaq, fv3, hysplit (not-ready), or camx (not-ready)', type=str,nargs='+', required=False, default=['cmaq']) 
     parser.add_argument('-s',   '--species',     help='string/list input for obs species-variables to create stats',type=str,nargs='+', required=False, default=['OZONE','PM2.5'])
     parser.add_argument('-b',   '--subset_epa',  help='boolean set to True for subsetting by U.S. EPA region', type=bool, required=False, default=False)
     parser.add_argument('-e',   '--epa_regions', help='string/list input for set U.S. EPA regions',type=str,nargs='+', required=False, default=['R1'])
@@ -140,23 +138,17 @@ if __name__ == '__main__':
 
     finput       = args.paired_data
     reg          = args.regulatory
-    networks     = args.networks
     startdate    = args.startdate
     enddate      = args.enddate
-    models       = args.models
     species      = args.species
     subset_epa   = args.subset_epa
     epa_regions  = args.epa_regions
     verbose      = args.verbose
 
     for ee in epa_regions:
-     for xx in models:
-#reads paired network
-      for ii in networks:
-       if ii == 'airnow' and xx == 'cmaq':
-          df = pd.read_hdf(finput)
-          mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO_new', 'NO':'NO_new', 'NO2':'NO2_new', 'SO2':'SO2_new','NOX':'NOX_new','NO2Y':'NOY','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10','SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
-          sub_map = {i: mapping_table[i] for i in species if i in mapping_table}   
+       df = pd.read_hdf(finput)
+       mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO_new', 'NO':'NO_new', 'NO2':'NO2_new', 'SO2':'SO2_new','NOX':'NOX_new','NO2Y':'NOY','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10','SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
+       sub_map = {i: mapping_table[i] for i in species if i in mapping_table}   
 #subsetting data for dates, regulatory calc, and/or epa regions    
        if startdate != None and enddate != None:
           mask = (df['time'] >= startdate) & (df['time'] <= enddate)
@@ -329,12 +321,6 @@ if __name__ == '__main__':
         print('---------------------------------')
         stats.write('---------------------------------'+'\n')
         stats.close()
-
-
-
-
-
-
 
     sys.exit(0)
     
