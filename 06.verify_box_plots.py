@@ -25,7 +25,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import sys
-#sys.path.append('/data/aqf/patrickc/MONET/')
 import monet
 from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum
 
@@ -206,7 +205,6 @@ if __name__ == '__main__':
      elif jj == 'RHUM':
      #convert model mixing ratio to relative humidity
       df2.loc[:,'Q2'] = get_relhum(df2.loc[:,'TEMP2'],df2.loc[:,'PRSFC'],df2.loc[:,'Q2'])
-     #df2.rename(index=str,columns={"Q2": "RH_mod"},inplace=True)
      elif jj == 'CO':
       df2.loc[:,'CO']=df2.loc[:,'CO']*1000.0 #convert obs ppm-->ppb
      else:

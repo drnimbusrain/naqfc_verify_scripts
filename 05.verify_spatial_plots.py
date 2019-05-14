@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-##!/data/aqf2/barryb/anaconda2/envs/website/bin/python
 
 ###############################################################
 # < next few lines under version control, D O  N O T  E D I T >
@@ -16,7 +15,6 @@ __license__ = 'GPL'
 import os
 import subprocess
 import sys
-#sys.path.append('/data/aqf/patrickc/MONET/')
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import dask
@@ -125,7 +123,6 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, 
         df = paired_data
     # loop over varaible list
     plots = []
-#    for index, var in enumerate(variable):
     obj = f[variable]
         # loop over time
     for t in obj.time:
@@ -137,14 +134,6 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, 
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time == pd.Timestamp(t.values),['latitude','longitude',obs_variable]]
             make_spatial_plot(obj.sel(time=t), odf, outname, proj, startdate, enddate, region=region)
-#            plots.append(dask.delayed(make_spatial_plot)
-#                         (obj.sel(time=t), odf, proj))
-#        plots dask.delayed(make_spatial_plot)(
-#            obj.sel(time=t), proj) for t in obj.time]
-#    dask.delayed(plots).compute()
-    # if paired_data is not None:
-    #     ov = obs_variable[[index, 'latitude', 'longitude'].loc[obs_variable.time == t]
-    # ax.scatter()
   else:
     # open the files
     f = open_cmaq(finput)

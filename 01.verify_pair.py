@@ -1,5 +1,4 @@
 #!/usr/bin/env python                                                                                                                                                                                                               
-##!/data/aqf2/barryb/anaconda2/envs/website/bin/python                                                                                                                                                                              
 
 __author__ = 'Patrick Campbell'
 __email__ = 'patrick.c.campbell@noaa.gov'
@@ -10,7 +9,6 @@ __license__ = 'GPL'
 import os
 from glob import glob
 import sys
-#sys.path.append('/data/aqf/patrickc/MONET/')                                                                                                                                                                                       
 
 import subprocess
 from distutils.spawn import find_executable
@@ -27,22 +25,10 @@ def pair_point(da, df, sub_map, interp):
     return dfpair
 
 
-def get_aqs(start, end, datapath=None, species=None, verbose=False):
-    dates = pd.date_range(start=start, end=end, freq='H')
-#    monet.obs.aqs.datadir = datapath                                                                                                                                                                                               
-    dfaqs = monet.obs.aqs.add_data(dates, param=species)
-    dfwide = long_to_wide(dfaqs)
-    #make sure there are no duplicates                                                                                                                                                                                              
-    return dfwide.drop_duplicates(subset=['time', 'siteid'])
-
-
 def get_airnow(start, end, datapath=None, verbose=False):
     dates = pd.date_range(start=start, end=end, freq='H')
-#    monet.obs.airnow.datadir = datapath                                                                                                                                                                                            
     dfairnow = monet.obs.airnow.add_data(dates)
-    dfwide = long_to_wide(dfairnow)
-    #make sure there are no duplicates                                                                                                                                                                                              
-    return dfwide.drop_duplicates(subset=['time', 'siteid'])
+    return dfairnow.drop_duplicates(subset=['time', 'siteid'])
 
 
 def open_cmaq(finput, verbose=False):
@@ -62,8 +48,6 @@ if __name__ == '__main__':
         nargs='+',
         type=str,
         required=True)
-    #    parser.add_argument('-sd', '--startdate',  help='string input start date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)                                                                                        
-    #    parser.add_argument('-ed', '--enddate',    help='string input end date for pairing YYYY-MM-DD HH:MM:SS', type=str, required=True)                                                                                          
     parser.add_argument(
         '-s',
         '--species',
@@ -87,22 +71,6 @@ if __name__ == '__main__':
         required=False,
         default='/data/aqf2/barryb/5xpm/AQS_DATA/')
     parser.add_argument(
-        '-n',
-        '--networks',
-        help='string/list input data network named: airnow, aqs',
-        type=str,
-        nargs='+',
-        required=False,
-        default=['airnow'])
-    parser.add_argument(
-        '-m',
-        '--models',
-        help=
-        'string/list input models: cmaq, fv3, hysplit (not-ready), or camx (not-ready)',
-        type=str,
-        required=False,
-        default='cmaq')
-    parser.add_argument(
         '-i',
         '--interp',
         help=
@@ -119,40 +87,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     finput = args.files
-    #    start   = args.startdate                                                                                                                                                                                                   
-    #    end     = args.enddate                                                                                                                                                                                                     
     species = args.species
     output = args.output
     datapath = args.path
-    networks = args.networks
-    models = args.models
     interp = args.interp
     verbose = args.verbose
 
-    #reads model outputs (cmaq default)                                                                                                                                                                                             
-    ii = models
-    if ii == 'cmaq':
-        da = open_cmaq(finput, verbose=verbose)
-    else:
-        print('Only works for cmaq model right now')
-        raise RuntimeError
-
-    #retrieves data observations and formats pandas dataframe (airnow default)                                                                                                                                                      
-    for jj in networks:
-        if jj == 'airnow':
-            start = da.time.to_index()[0]
-            end = da.time.to_index()[-1]
-            df = get_airnow(start, end, datapath=None)
-        elif jj == 'aqs':
-            start = da.time.to_index()[0]
-            end = da.time.to_index()[-1]
-            df = get_aqs(start, end, datapath, species)
-        else:
-            print('Only works for airnow and/or aqs right now')
-            raise RuntimeError
-        #pairs surface point-type observations with model parameters                                                                                                                                                                
-    if (ii == 'cmaq') & (jj == 'airnow'):
-        mapping_table = {
+    da = open_cmaq(finput, verbose=verbose)
+    start = da.time.to_index()[0]
+    end = da.time.to_index()[-1]
+    df = get_airnow(start, end, datapath=None)
+    mapping_table = {
             'OZONE': 'O3',
             'PM2.5': 'PM25_TOT',
             'PM10': 'PMC_TOT',
@@ -169,41 +114,16 @@ if __name__ == '__main__':
             'BARPR': 'PRSFC',
             'PRECIP': 'RT',
             'RHUM': 'Q2'
-        }
-        sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
-        invert_sub_map = dict(map(reversed, sub_map.items()))
-        dfpair = pair_point(da, df, invert_sub_map, interp)
+             }
+    sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
+    invert_sub_map = dict(map(reversed, sub_map.items()))
+    print(df.keys())
+    dfpair = pair_point(da, df, invert_sub_map, interp)
 
-        dfpair.to_hdf(
+    dfpair.to_hdf(
             'AIRNOW_CMAQ_' + start.strftime('%Y-%m-%d-%H') + '_' +
             end.strftime('%Y-%m-%d-%H') + '_pair.hdf',
             'dfpair',
             format='table',
             mode='w')
-
-    elif ii == 'cmaq' and jj == 'aqs':
-        mapping_table = {
-            'OZONE': 'O3',
-            'PM2.5': 'PM25_TOT',
-            'PM10': 'PMC_TOT',
-            'CO': 'CO',
-            'NO': 'NO',
-            'NO2': 'NO2',
-            'SO2': 'SO2',
-            'NONOxNOy': 'NOX',
-            'NONOxNOy': 'NOY',
-            'VOC': 'VOC'
-        }
-        sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
-        dfpair = pair_point(da, df, invert_sub_map, interp)
-        dfpair.to_hdf(
-            'AQS_CMAQ_' + start.strftime('%Y-%m-%d-%H') + '_' +
-            end.strftime('%Y-%m-%d-%H') + '_pair.hdf',
-            'dfpair',
-            format='table',
-            mode='w')
-    else:
-        print('Only works for pair airnow and/or aqs right now')
-        raise RuntimeError
-
     sys.exit(0)

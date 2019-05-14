@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-##!/data/aqf2/barryb/anaconda2/envs/website/bin/python
 
 ###############################################################
 # < next few lines under version control, D O  N O T  E D I T >
@@ -16,7 +15,6 @@ __license__ = 'GPL'
 import os
 import subprocess
 import sys
-#sys.path.append('/data/aqf/patrickc/MONET/')
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 import cartopy.crs as ccrs
 import dask
@@ -62,7 +60,6 @@ def make_spatial_bias_plot(df,
                            date=None,
                            region='domain',
                            **kwargs):
-#    monet.plots.mapgen.draw_map(states=True)
     ax = monet.plots.sp_scatter_bias(
         df, col1=col1, col2=col2, map_kwargs=dict(states=True),**kwargs)
     date = pd.Timestamp(date)
