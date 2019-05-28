@@ -77,7 +77,7 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,reg
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
 
     import stratify
-    lev3d=(daz*0.0)+(lev*100.0) #convert target levels to 3d and the hPa argument to model Pa units
+    lev3d=(daz*0.0)+(lev) #convert target level to 3d
     new_da = stratify.interpolate(lev3d, daz, da,
                                        axis=0)    
     da.values=new_da
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-fmet', '--files_met', help='input model met file names', nargs='+', type=str, required=True)
     parser.add_argument(
-        '-l', '--level', help='input model level desired (default pressure - Mid level; hPa)', type=float, required=False, default=850)
+        '-l', '--level', help='input model level desired (default pressure - Mid level; Pa)', type=float, required=False, default=85000)
     parser.add_argument(
         '-p', '--paired_data', help='associated paired data input file name', type=str, required=False, default=None)
     parser.add_argument(
