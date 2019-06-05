@@ -84,7 +84,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
     
     extent = [lonmin,lonmax,latmin,latmax]
-    ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,cmap=plt.cm.get_cmap('jet')) 
+    ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,cmap=plt.cm.get_cmap('spectral')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
     if startdate == None and enddate == None:
@@ -99,7 +99,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     vmin, vmax = cbar.get_ybound() 
     vars = df.keys() 
     varname = [x for x in vars if x not in ['latitude','longitude']][0] 
-    ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('jet'))
+    ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('spectral'))
     ax.set_extent(extent,crs=ccrs.PlateCarree())
     
     if startdate == None and enddate == None:
