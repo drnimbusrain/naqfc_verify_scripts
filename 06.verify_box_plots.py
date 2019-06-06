@@ -165,7 +165,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
     parser.add_argument(
-        '-ylog', '--ylog_scale', help='Set static max y-scale', type=bool, required=False, default=False)
+        '-ylog', '--ylog_scale', help='Set log y-scale', type=bool, required=False, default=False)
     args = parser.parse_args()
 
     paired_data = args.paired_data
