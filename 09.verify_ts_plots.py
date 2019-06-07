@@ -92,7 +92,10 @@ def make_timeseries_epa(
      ax=df[col2].resample('H').mean().plot(color='red',label='MOD2')
     if modcount == 2:
      ax=df[col2].resample('H').mean().plot(color='green',label='MOD3')
-
+    if modcount == 3:
+     ax=df[col2].resample('H').mean().plot(color='purple',label='MOD4')
+    if modcount == 4:
+     ax=df[col2].resample('H').mean().plot(color='orange',label='MOD5')
     sns.despine()
     if vmin != None and vmax != None:
      plt.ylim(vmin, vmax)
