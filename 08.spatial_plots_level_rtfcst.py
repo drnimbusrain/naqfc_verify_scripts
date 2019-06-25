@@ -64,7 +64,7 @@ def open_cmaq_met(finput_met):
     return f
 
 
-def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,region='domain'): 
+def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,vmin,vmax,region='domain'): 
     cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
 
     if region == 'domain':
@@ -86,7 +86,7 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,reg
     
 
 
-    ax = da[0,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,cmap=plt.cm.get_cmap('Spectral_r')) 
+    ax = da[0,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
     if startdate == None and enddate == None:
@@ -101,7 +101,8 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,reg
      plt.title('average time period | CMAQ')
 
     cbar = ax.figure.get_axes()[1] 
-    vmin, vmax = cbar.get_ybound() 
+    if vmin == None and vmax == None:
+     vmin, vmax = cbar.get_ybound() 
 #    vars = df.keys() 
 #    varname = [x for x in vars if x not in ['latitude','longitude']][0] 
 #    ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r'))
@@ -118,7 +119,7 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,reg
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
-def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate, enddate, region, outname):
+def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate, enddate, region, vmin,vmax,outname):
   if startdate == None and enddate == None:
     # open the files
     f = open_cmaq(finput)
@@ -140,7 +141,7 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
             print('Creating Plot:', variable, 'at time:', date)
             print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            make_spatial_plot(obj.sel(time=t), obj_met.sel(time=t), lev, outname, proj, startdate, enddate, count,region=region)
+            make_spatial_plot(obj.sel(time=t), obj_met.sel(time=t), lev, outname, proj, startdate, enddate, count,vmin,vmax,region=region)
             count=count+1
   else:
     # open the files
@@ -166,7 +167,7 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
     mod_mean = mod_slice.mean(dim='time')
     mod_slice_alt = obj_met.sel(time=slice(startdate,enddate))
     mod_mean_alt = mod_slice_met.mean(dim='time')
-    make_spatial_plot(mod_mean, mod_mean_alt, lev, outname, proj, startdate, enddate,count, region=region)
+    make_spatial_plot(mod_mean, mod_mean_alt, lev, outname, proj, startdate, enddate,count, vmin,vmax,region=region)
 
 if __name__ == '__main__':
 
@@ -215,8 +216,10 @@ if __name__ == '__main__':
         type=str,
         required=False,
         default=None)
-    
-
+    parser.add_argument(
+        '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
+    parser.add_argument(
+        '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None) 
     args = parser.parse_args()
 
     finput      = args.files
@@ -232,6 +235,9 @@ if __name__ == '__main__':
     enddate     = args.enddate
     reg         = args.regulatory
     alt_label   = args.altitude
+    vmin        = args.miny_scale
+    vmax        = args.maxy_scale
+
 
     if region is "domain":
      subset = False 
@@ -256,4 +262,4 @@ if __name__ == '__main__':
       if region == 'domain':
        outname = outname.replace('domain','5X')
 
-     make_plots(finput, finput_met, jj, alt_label, lev, verbose, startdate, enddate,region, outname)
+     make_plots(finput, finput_met, jj, alt_label, lev, verbose, startdate, enddate,region, vmin,vmax, outname)
