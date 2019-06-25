@@ -71,7 +71,7 @@ def open_cmaq(finput):
 def load_paired_data(fname):
     return pd.read_hdf(fname)
 
-def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'): 
+def make_spatial_plot(da, df, outname, proj, startdate, enddate,vmin,vmax,region='domain'): 
     cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
 
     if region == 'domain':
@@ -84,9 +84,10 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
     
     extent = [lonmin,lonmax,latmin,latmax]
-    ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,cmap=plt.cm.get_cmap('Spectral_r')) 
+    ax = da.monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
+    
     if startdate == None and enddate == None:
      date = pd.Timestamp(da.time.values) 
      dt = date - initial_datetime
@@ -94,9 +95,11 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
      plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
     else:
      plt.title('average time period | CMAQ - AIRNOW ')
-
+     
     cbar = ax.figure.get_axes()[1] 
-    vmin, vmax = cbar.get_ybound() 
+    if vmin == None and vmax == None:
+     vmin, vmax = cbar.get_ybound()
+     
     vars = df.keys() 
     varname = [x for x in vars if x not in ['latitude','longitude']][0] 
     ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r'))
@@ -113,7 +116,7 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate, region='domain'
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
-def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, enddate, region, outname):
+def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, enddate, region,vmin,vmax, outname):
   if startdate == None and enddate == None:
     # open the files
     f = open_cmaq(finput)
@@ -133,7 +136,7 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, 
             print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             odf = df.loc[df.time == pd.Timestamp(t.values),['latitude','longitude',obs_variable]]
-            make_spatial_plot(obj.sel(time=t), odf, outname, proj, startdate, enddate, region=region)
+            make_spatial_plot(obj.sel(time=t), odf, outname, proj, startdate, enddate,vmin,vmax, region=region)
   else:
     # open the files
     f = open_cmaq(finput)
@@ -156,7 +159,7 @@ def make_plots(finput, paired_data, variable, obs_variable, verbose, startdate, 
     odf_mean = df_mean[['latitude','longitude',obs_variable]]
     mod_slice = obj.sel(time=slice(startdate,enddate)) 
     mod_mean = mod_slice.mean(dim='time')
-    make_spatial_plot(mod_mean, odf_mean, outname, proj, startdate, enddate, region=region)
+    make_spatial_plot(mod_mean, odf_mean, outname, proj, startdate, enddate,vmin,vmax, region=region)
 
 if __name__ == '__main__':
 
@@ -199,7 +202,10 @@ if __name__ == '__main__':
         type=str,
         required=False,
         default=None)
-
+    parser.add_argument(
+        '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
+    parser.add_argument(
+        '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
     args = parser.parse_args()
 
     finput      = args.files
@@ -212,6 +218,8 @@ if __name__ == '__main__':
     startdate   = args.startdate
     enddate     = args.enddate
     reg         = args.regulatory
+    vmin        = args.miny_scale
+    vmax        = args.maxy_scale
 
     #load the paired dataframe
     
@@ -294,4 +302,4 @@ if __name__ == '__main__':
 
 
      make_plots(finput, dfnew_drop, sub_map.get(jj),
-               jj, verbose, startdate, enddate,region, outname)
+               jj, verbose, startdate, enddate,region,vmin,vmax, outname)
