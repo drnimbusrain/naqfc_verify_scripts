@@ -1,11 +1,19 @@
 #!/bin/bash -x
+
+#Example script to invoke all MONETv2 AIRNOW Evaluation package scripts
+
 source /data/aqf2/barryb/anaconda2/bin/activate website
 
 # get the 48-hour date to current
-date
-yyyymmdd=$(date -d "-2 days" +%Y-%m-%d)
-yyyymmdd48hr=$(date -d "-0 days" +%Y-%m-%d)
-yyyymmddform=$(date -d "-2 days" +%Y%m%d)
+#date
+#yyyymmdd=$(date -d "-2 days" +%Y-%m-%d)
+#yyyymmdd48hr=$(date -d "-0 days" +%Y-%m-%d)
+#yyyymmddform=$(date -d "-2 days" +%Y%m%d)
+
+#Or, Set explicit 48 hr dates
+yyyymmdd=2019-04-09
+yyyymmdd48hr=2019-04-11
+yyyymmddform=20190409
 
 # go to local data directory
 data_dir=/data/aqf3/patrickc/5xpm
@@ -29,19 +37,19 @@ box=/data/aqf/patrickc/naqfc_verify_scripts/06.verify_box_plots.py
 ${pair} -f ${files} -s 'OZONE' 'PM2.5' 
 
 # period statistics
-${stats} -p -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -r True -sd "${yyyymmdd} 13:00:00" -ed "${yyyymmdd48hr} 12:00:00"
+${stats} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -r True -sd "${yyyymmdd} 13:00:00" -ed "${yyyymmdd48hr} 12:00:00"
 
 # hourly spatial overlay plots
-${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5'  -n ${yyyymmddform}
+#${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5'  -n ${yyyymmddform}
 # period spatial overlay plots
 ${spatial} -f ${files} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -r True -sd "${yyyymmdd} 13:00:00" -ed "${yyyymmdd48hr} 12:00:00"
 
 # hourly spatial bias plots
-${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
+#${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
 # period spatial bias plots
 ${bias} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -r True -sd "${yyyymmdd} 13:00:00" -ed "${yyyymmdd48hr} 12:00:00" 
 
 # hourly taylor plots
-${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
+#${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -n ${yyyymmddform}
 # period taylor plots
 ${taylor} -p AIRNOW_CMAQ_${yyyymmdd}-13_${yyyymmdd48hr}-12_pair.hdf -s 'OZONE' 'PM2.5' -r True -sd "${yyyymmdd} 13:00:00" -ed "${yyyymmdd48hr} 12:00:00"
