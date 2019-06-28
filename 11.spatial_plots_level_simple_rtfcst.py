@@ -85,7 +85,6 @@ def make_spatial_plot(da, lev, alt_label,outname, proj, startdate, enddate, coun
     
     
 
-    print(da)
     ax = da[lev,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
@@ -254,7 +253,7 @@ if __name__ == '__main__':
       if region == 'domain':
        outname = outname.replace('domain','5X')
      else:
-      outname = "{}.{}.{}.{}".format(out_name,region, jj, str(lev))
+      outname = "{}.{}.{}.{}".format(out_name,region, jj, str(int(alt_label)))
       if jj == 'PM2.5':
        outname = outname.replace('PM25_TOT','PM2P5')
       if region == 'domain':
