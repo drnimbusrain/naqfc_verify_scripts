@@ -64,7 +64,7 @@ def open_cmaq_met(finput_met):
     return f
 
 
-def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,vmin,vmax,region='domain'): 
+def make_spatial_plot(da, lev, alt_label,outname, proj, startdate, enddate, count,vmin,vmax,region='domain'): 
     cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
 
     if region == 'domain':
@@ -76,17 +76,17 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,vmi
      from monet.util.tools import get_epa_region_bounds as get_epa_bounds
      latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
 
-    import stratify
-    lev3d=(daz*0.0)+(lev) #convert target level to 3d
-    new_da = stratify.interpolate(lev3d, daz, da,
-                                       axis=0)    
-    da.values=new_da
+   # import stratify
+   # lev3d=(daz*0.0)+(lev) #convert target level to 3d
+   # new_da = stratify.interpolate(lev3d, daz, da,
+   #                                    axis=0)    
+    da.values=da
     extent = [lonmin,lonmax,latmin,latmax]
     
     
 
-
-    ax = da[0,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
+    print(da)
+    ax = da[lev,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
     if startdate == None and enddate == None:
@@ -96,9 +96,9 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,vmi
 #     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
      dt = count
      dtstr = str(dt).zfill(3)
-     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ | Pressure Level (mb) =  {}'.format(str(int(lev/100)))))
+     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ | Meters AGL ~ {}'.format(alt_label)))
     else:
-     plt.title('average time period | CMAQ | Pressure Level (mb) =  {}'.format(str(int(lev/100))))
+     plt.title('average time period | CMAQ | Meters AGL ~ {}'.format(alt_label))
 
     cbar = ax.figure.get_axes()[1] 
     if vmin == None and vmax == None:
@@ -119,11 +119,10 @@ def make_spatial_plot(da, daz, lev, outname, proj, startdate, enddate, count,vmi
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
-def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate, enddate, region, vmin,vmax,outname):
+def make_plots(finput, variable, lev, alt_label,verbose, startdate, enddate, region, vmin,vmax,outname):
   if startdate == None and enddate == None:
     # open the files
     f = open_cmaq(finput)
-    fmet = open_cmaq_met(finput_met)
     # get map projection
     proj = map_projection(f)
     if paired_data is not None:
@@ -131,7 +130,7 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
     # loop over varaible list
     plots = []
     obj = f[variable]
-    obj_met = fmet[alt_label]
+    #obj_met = fmet[alt_label]
         # loop over time
     count = 0
     for t in obj.time:
@@ -141,12 +140,11 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
             print('Creating Plot:', variable, 'at time:', date)
             print(
                 ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            make_spatial_plot(obj.sel(time=t), obj_met.sel(time=t), lev, outname, proj, startdate, enddate, count,vmin,vmax,region=region)
+            make_spatial_plot(obj.sel(time=t), lev, alt_label,outname, proj, startdate, enddate, count,vmin,vmax,region=region)
             count=count+1
   else:
     # open the files
     f = open_cmaq(finput)
-    fmet = open_cmaq_met(finput_met)
     # get map projection
     proj = map_projection(f)
     if paired_data is not None:
@@ -155,7 +153,7 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
     plots = []
 #    for index, var in enumerate(variable):
     obj = f[variable]
-    obj_met = fmet[alt_label]
+#    obj_met = fmet[alt_label]
     sdate=pd.Timestamp(startdate)
     edate=pd.Timestamp(enddate)
     print(
@@ -167,7 +165,7 @@ def make_plots(finput, finput_met, variable, alt_label, lev, verbose, startdate,
     mod_mean = mod_slice.mean(dim='time')
     mod_slice_alt = obj_met.sel(time=slice(startdate,enddate))
     mod_mean_alt = mod_slice_met.mean(dim='time')
-    make_spatial_plot(mod_mean, mod_mean_alt, lev, outname, proj, startdate, enddate,count, vmin,vmax,region=region)
+    make_spatial_plot(mod_mean, lev, alt_label,outname, proj, startdate, enddate,count, vmin,vmax,region=region)
 
 if __name__ == '__main__':
 
@@ -176,9 +174,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '-f', '--files', help='input model file names', nargs='+', type=str, required=True)
     parser.add_argument(
-        '-fmet', '--files_met', help='input model met file names', nargs='+', type=str, required=True)
+        '-fmet', '--files_met', help='input model met file names', nargs='+', type=str, required=False)
     parser.add_argument(
-        '-l', '--level', help='input model level desired (default pressure - Mid level; Pa)', type=float, required=False, default=85000)
+        '-l', '--level', help='input model level desired', type=int, required=False, default=0)
     parser.add_argument(
         '-p', '--paired_data', help='associated paired data input file name', type=str, required=False, default=None)
     parser.add_argument(
@@ -192,7 +190,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '-n', '--output_name', help='Output base name',type=str, required=False, default='CMAQ_AIRNOW')
     parser.add_argument(
-        '-alt', '--altitude', help='Model Altitude label to vertically interpolate (default Pressure)',type=str, required=False, default='PRES')
+        '-alt', '--altitude', help='Approx AGL label to plot (meters)',type=str, required=False, default='25')
     parser.add_argument(
         '-sup', '--suppress_xwindow', help='Suppress X Window', action='store_true', required=False)
     parser.add_argument(
@@ -237,7 +235,7 @@ if __name__ == '__main__':
     alt_label   = args.altitude
     vmin        = args.miny_scale
     vmax        = args.maxy_scale
-
+    
 
     if region is "domain":
      subset = False 
@@ -262,4 +260,4 @@ if __name__ == '__main__':
       if region == 'domain':
        outname = outname.replace('domain','5X')
 
-     make_plots(finput, finput_met, jj, alt_label, lev, verbose, startdate, enddate,region, vmin,vmax, outname)
+     make_plots(finput, jj, lev, alt_label,verbose, startdate, enddate,region, vmin,vmax, outname)
