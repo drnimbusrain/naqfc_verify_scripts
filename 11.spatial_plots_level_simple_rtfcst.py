@@ -247,7 +247,7 @@ if __name__ == '__main__':
       enddatename_obj   = datetime.datetime.strptime(enddate, '%Y-%m-%d %H:%M:%S')
       startdatename = str(datetime.datetime.strftime(startdatename_obj,'%Y-%m-%d_%H'))
       enddatename = str(datetime.datetime.strftime(enddatename_obj,'%Y-%m-%d_%H'))
-      outname = "{}.{}.{}.{}.{}.{}".format(out_name, region, jj, startdatename, enddatename, str(lev))
+      outname = "{}.{}.{}.{}.{}.{}".format(out_name, region, jj, startdatename, enddatename, str(int(alt_label)))
       if jj == 'PM25_TOT':
        outname = outname.replace('PM25_TOT','PM2P5')
       if region == 'domain':
