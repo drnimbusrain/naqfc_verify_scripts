@@ -118,7 +118,7 @@ def make_spatial_plot(da, lev, alt_label,outname, proj, startdate, enddate, coun
     monet.plots.savefig(savename, bbox_inches='tight', dpi=100, decorate=True)
     plt.close()
 
-def make_plots(finput, variable, lev, alt_label,verbose, startdate, enddate, region, vmin,vmax,outname):
+def make_plots(finput, variable, lev, alt_label,verbose, startdate, enddate, region, vmin,vmax,loadflag,outname):
   if startdate == None and enddate == None:
     # open the files
     f = open_cmaq(finput)
@@ -128,7 +128,11 @@ def make_plots(finput, variable, lev, alt_label,verbose, startdate, enddate, reg
         df = paired_data
     # loop over varaible list
     plots = []
-    obj = f[variable]
+    #by default it is set to load entire file (good for many variables), set to false in argument to a long time period    
+    if loadflag == True:
+        obj = f[variable].load()
+    else:
+        obj = f[variable]
     #obj_met = fmet[alt_label]
         # loop over time
     count = 0
@@ -151,7 +155,10 @@ def make_plots(finput, variable, lev, alt_label,verbose, startdate, enddate, reg
     # loop over varaible list
     plots = []
 #    for index, var in enumerate(variable):
-    obj = f[variable]
+    if loadflag == True:
+        obj = f[variable].load()
+    else:
+        obj = f[variable]
 #    obj_met = fmet[alt_label]
     sdate=pd.Timestamp(startdate)
     edate=pd.Timestamp(enddate)
@@ -217,7 +224,10 @@ if __name__ == '__main__':
         '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
     parser.add_argument(
         '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None) 
+    parser.add_argument(
+        '-ldflag', '--load_flag', help='Load data flag to memory',type=bool, required=False, default=True)
     args = parser.parse_args()
+        
 
     finput      = args.files
     finput_met  = args.files_met
@@ -234,6 +244,7 @@ if __name__ == '__main__':
     alt_label   = args.altitude
     vmin        = args.miny_scale
     vmax        = args.maxy_scale
+    loadflag    = args.load_flag
     
 
     if region is "domain":
@@ -259,4 +270,4 @@ if __name__ == '__main__':
       if region == 'domain':
        outname = outname.replace('domain','5X')
 
-     make_plots(finput, jj, lev, alt_label,verbose, startdate, enddate,region, vmin,vmax, outname)
+     make_plots(finput, jj, lev, alt_label,verbose, startdate, enddate,region, vmin,vmax, loadflag, outname)
