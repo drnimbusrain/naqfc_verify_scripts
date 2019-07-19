@@ -66,7 +66,7 @@ def open_cmaq_met(finput_met):
 
 def make_spatial_plot(da, lev, alt_label,outname, proj, startdate, enddate, count,vmin,vmax,region='domain'): 
     cbar_kwargs = dict(aspect=30,shrink=.8)#dict(aspect=30)                       
-
+    
     if region == 'domain':
      latmin= 25.0
      lonmin=-130.0
@@ -79,12 +79,10 @@ def make_spatial_plot(da, lev, alt_label,outname, proj, startdate, enddate, coun
    # import stratify
    # lev3d=(daz*0.0)+(lev) #convert target level to 3d
    # new_da = stratify.interpolate(lev3d, daz, da,
-   #                                    axis=0)    
+   #                                    axis=0)   
     da.values=da
     extent = [lonmin,lonmax,latmin,latmax]
     
-    
-
     ax = da[lev,:,:].monet.quick_map(cbar_kwargs=cbar_kwargs, figsize=(15, 8), map_kwarg={'states': True, 'crs': proj,'extent':extent},robust=True,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r')) 
     plt.gcf().canvas.draw() 
     plt.tight_layout(pad=0)
