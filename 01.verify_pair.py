@@ -106,7 +106,7 @@ if __name__ == '__main__':
             'NO2': 'NO2',
             'SO2': 'SO2',
             'NOX': 'NOX',
-            'NO2Y': 'NOY',
+            'NOY': 'NOY',
             'TEMP': 'TEMP2',
             'WS': 'WSPD10',
             'WD': 'WDIR10',
