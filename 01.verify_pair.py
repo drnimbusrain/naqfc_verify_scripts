@@ -20,8 +20,8 @@ import pandas as pd
 
 
 def pair_point(da, df, sub_map, interp):
-    dfpair = da.monet.combine_point(
-        df, mapping_table=sub_map, method=interp, reuse_weights=True)
+    dfpair = da[sub_map].monet.combine_point(
+        df, method=interp, reuse_weights=True)
     return dfpair
 
 
@@ -116,9 +116,10 @@ if __name__ == '__main__':
             'RHUM': 'Q2'
              }
     sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
+    use_these = [sub_map[i] for i in sub_map.keys()]
     invert_sub_map = dict(map(reversed, sub_map.items()))
     print(df.keys())
-    dfpair = pair_point(da, df, invert_sub_map, interp)
+    dfpair = pair_point(da, df, use_these, interp)
 
     dfpair.to_hdf(
             'AIRNOW_CMAQ_' + start.strftime('%Y-%m-%d-%H') + '_' +
