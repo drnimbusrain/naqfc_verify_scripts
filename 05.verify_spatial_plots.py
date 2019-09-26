@@ -102,8 +102,8 @@ def make_spatial_plot(da, df, outname, proj, startdate, enddate,vmin,vmax,region
      
     vars = df.keys() 
     varname = [x for x in vars if x not in ['latitude','longitude']][0] 
-    ax.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r'))
-    ax.set_extent(extent,crs=ccrs.PlateCarree())
+    ax.axes.scatter(df.longitude.values,df.latitude.values,s=25,c=df[varname],transform=ccrs.PlateCarree(),edgecolor='b',linewidth=.50,vmin=vmin,vmax=vmax,cmap=plt.cm.get_cmap('Spectral_r'))
+    ax.axes.set_extent(extent,crs=ccrs.PlateCarree())
     
     if startdate == None and enddate == None:
      savename = "{}.{}.{}.jpg".format(outname,
