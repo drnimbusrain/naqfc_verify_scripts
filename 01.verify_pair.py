@@ -25,9 +25,9 @@ def pair_point(da, df, sub_map, interp):
     return dfpair
 
 
-def get_airnow(start, end, datapath=None, verbose=False):
+def get_airnow(start, end, n_procs=None, datapath=None, verbose=False):
     dates = pd.date_range(start=start, end=end, freq='H')
-    dfairnow = monet.obs.airnow.add_data(dates)
+    dfairnow = monet.obs.airnow.add_data(dates,n_procs=n_procs)
     return dfairnow.drop_duplicates(subset=['time', 'siteid'])
 
 
@@ -84,6 +84,14 @@ if __name__ == '__main__':
         help='print debugging information',
         action='store_true',
         required=False)
+    parser.add_argument(
+        '-n',
+        '--n_procs',
+        help='number of processors to speed up download',
+        type=int,
+        default=None,
+        required=False)
+
     args = parser.parse_args()
 
     finput = args.files
@@ -92,11 +100,12 @@ if __name__ == '__main__':
     datapath = args.path
     interp = args.interp
     verbose = args.verbose
+    n_procs = args.n_procs
 
     da = open_cmaq(finput, verbose=verbose)
     start = da.time.to_index()[0]
     end = da.time.to_index()[-1]
-    df = get_airnow(start, end, datapath=None)
+    df = get_airnow(start, end, n_procs=n_procs, datapath=None)
     mapping_table = {
             'OZONE': 'O3',
             'PM2.5': 'PM25_TOT',
