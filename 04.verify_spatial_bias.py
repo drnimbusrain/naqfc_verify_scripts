@@ -55,13 +55,15 @@ def load_paired_data(fname):
 
 def make_spatial_bias_plot(df,
                            out_name,
+                           vmin,
+                           vmax,
                            col1='OZONE',
                            col2='O3',
                            date=None,
                            region='domain',
                            **kwargs):
     ax = monet.plots.sp_scatter_bias(
-        df, col1=col1, col2=col2, map_kwargs=dict(states=True),**kwargs)
+        df, col1=col1, col2=col2, map_kwargs=dict(states=True),val_max=vmax,val_min=vmin,**kwargs)
     date = pd.Timestamp(date)
     dt = date - initial_datetime
     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
@@ -88,7 +90,7 @@ def make_spatial_bias_plot(df,
     plt.close()
 
 
-def make_plots(df, variable, obs_variable, startdate, enddate, region,out_name):
+def make_plots(df, variable, obs_variable, startdate, enddate, region,vmin,vmax,out_name):
     if startdate == None and enddate == None:
         for t in df.time.unique():
             date = pd.Timestamp(t)
@@ -103,6 +105,8 @@ def make_plots(df, variable, obs_variable, startdate, enddate, region,out_name):
                 make_spatial_bias_plot(
                     odf,
                     out_name,
+                    vmin,
+                    vmax,
                     col1=obs_variable,
                     col2=variable,
                     date=t,
@@ -122,6 +126,8 @@ def make_plots(df, variable, obs_variable, startdate, enddate, region,out_name):
         make_spatial_bias_plot(
                     df_mean,
                     out_name,
+                    vmin,
+                    vmax,
                     col1=obs_variable,
                     col2=variable,
                     date=edate,
@@ -194,6 +200,10 @@ if __name__ == '__main__':
         type=str,
         required=False,
         default=None)
+    parser.add_argument(
+        '-miny', '--miny_scale', help='Set static min y-scale', type=float, required=False, default=None)
+    parser.add_argument(
+        '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
     args = parser.parse_args()
 
     paired_data = args.paired_data
@@ -204,6 +214,9 @@ if __name__ == '__main__':
     startdate   = args.startdate
     enddate     = args.enddate
     reg         = args.regulatory
+    vmin        = args.miny_scale
+    vmax        = args.maxy_scale
+
 
 #load the paired dataframe 
     df = load_paired_data(paired_data)
@@ -277,4 +290,4 @@ if __name__ == '__main__':
 
      initial_datetime = dfnew_drop.time.min()
      # make the plots
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, region,outname)
+     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, region, vmin,vmax,outname)
