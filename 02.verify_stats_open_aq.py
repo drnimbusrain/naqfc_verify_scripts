@@ -180,8 +180,8 @@ if __name__ == '__main__':
        
 #Converts OZONE, PM10, or PM2.5 dataframe to NAAQS regulatory values
        for jj in species: 
-       	df_replace = df.replace(0.0,np.nan) #Replace all values with exactly 0.0 
-       	df_drop=df_replace.dropna(subset=[jj,sub_map.get(jj)]) #Drops all rows with obs species = NaN        
+        df[jj] = np.where(df[jj]<=0, np.nan, df[jj]) #Replace all values < 0 with NaN
+       	df_drop=df.dropna(subset=[jj,sub_map.get(jj)]) #Drops all corresponding rows with obs species = NaN        
        
         if jj == 'OZONE' and reg is True:
        	 df2 = make_8hr_regulatory(df_drop,[jj,sub_map.get(jj)]).rename(index=str,columns={jj+'_y':jj,sub_map.get(jj)+'_y':sub_map.get(jj)}) 
