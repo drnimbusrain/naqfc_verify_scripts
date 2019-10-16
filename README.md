@@ -1,5 +1,5 @@
 # naqfc_verify_scripts
-New command-line python scripts for NAQFC AIRNOW-CMAQ and FV3-Open-AQ (limited) verification based on MONETv2.
+New command-line python scripts for regional NAQFC AIRNOW-CMAQ and global FV3-Open-AQ (limited) verification based on MONETv2.
 
 Invoking each script with -help will show the list of arguments available.
 
