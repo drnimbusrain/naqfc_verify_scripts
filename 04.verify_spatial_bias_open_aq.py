@@ -57,26 +57,31 @@ def make_spatial_bias_plot(df,
                            out_name,
                            vmin,
                            vmax,
-                           col1='OZONE',
-                           col2='O3',
+                           col1='pm25_ug3',
+                           col2='sfc_pm25',
                            date=None,
                            region='domain',
                            **kwargs):
-    ax = monet.plots.sp_scatter_bias(
+    if region == 'domain':
+     ax = monet.plots.sp_scatter_bias(
+        df, col1=col1, col2=col2, map_kwargs=dict(states=False),val_max=vmax,val_min=vmin,**kwargs)
+    else:
+     ax = monet.plots.sp_scatter_bias(
         df, col1=col1, col2=col2, map_kwargs=dict(states=True),val_max=vmax,val_min=vmin,**kwargs)
+
     date = pd.Timestamp(date)
     dt = date - initial_datetime
     dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(3)
     plt.title(date.strftime('time=%Y/%m/%d %H:00 | CMAQ - AIRNOW '))
         
     if region == 'domain':
-     latmin= 25.0
-     lonmin=-130.0
-     latmax= 55.0
-     lonmax=-55.0
+     latmin=-90.0
+     lonmin=-180.0
+     latmax=90.0
+     lonmax=180.0
     else:
-     from monet.util.tools import get_epa_region_bounds as get_epa_bounds    
-     latmin,lonmin,latmax,lonmax,acro = get_epa_bounds(index=None,acronym=region)
+     from monet.util.tools import get_giorgi_region_bounds as get_giorgi_bounds    
+     latmin,lonmin,latmax,lonmax,acro = get_giorgi_bounds(index=None,acronym=region)
    
     plt.xlim([lonmin,lonmax])
     plt.ylim([latmin,latmax]) 
@@ -137,13 +142,13 @@ def make_plots(df, variable, obs_variable, startdate, enddate, region,vmin,vmax,
                     linewidth=.8)
 
 def get_df_region(obj, region):
-    from monet.util.tools import get_epa_region_df as get_epa
+    from monet.util.tools import get_giorgi_region_df as get_giorgi
     if region.lower() == 'domain':
-        obj['EPA_ACRO'] = 'domain'
+        obj['GIORGI_ACRO'] = 'domain'
         return obj
     else:
-        obj = get_epa(region)
-        return obj.loc[obj.EPA_ACRO == region.upper()]
+        obj = get_giorgi(region)
+        return obj.loc[obj.GIORGI_ACRO == region.upper()]
 
 
 if __name__ == '__main__':
@@ -158,18 +163,18 @@ if __name__ == '__main__':
         type=str,
         required=True)
     parser.add_argument(
-        '-s', '--species', nargs='+', help='Species', required=False, default=['OZONE'])
+        '-s', '--species', nargs='+', help='Species', required=False, default=['pm25_ugm3'])
     parser.add_argument(
         '-b',
-        '--subset_epa',
-        help='EPA Region Subset true/false',
+        '--subset_giorgi',
+        help='Giorgi Region Subset true/false',
         type=bool,
         required=False,
         default=False)
     parser.add_argument(
-        '-e',
-        '--epa_region',
-        help='EPA Region ACRONYMs',
+        '-g',
+        '--giorgi_region',
+        help='GIORGI Region ACRONYMs NAU,SAU,AMZ,SSA,CAM,WNA,CNA,ENA,ALA,GRL,MED,NEU,WAF,EAF,SAF,SAH,SEA,EAS,SAS,CAS,TIB,NAS',
         required=False,
         default='domain')
     parser.add_argument(
@@ -178,7 +183,7 @@ if __name__ == '__main__':
         help='Spatial bias plot Output base name',
         type=str,
         required=False,
-        default='CMAQ_AIRNOW')
+        default='OPEN_AQ_FV3CHEM')
     parser.add_argument(
         '-r',
         '--regulatory',
@@ -209,8 +214,8 @@ if __name__ == '__main__':
     paired_data = args.paired_data
     species     = args.species
     out_name    = args.output_name
-    subset      = args.subset_epa
-    region      = args.epa_region
+    subset      = args.subset_giorgi
+    region      = args.giorgi_region
     startdate   = args.startdate
     enddate     = args.enddate
     reg         = args.regulatory
@@ -220,25 +225,25 @@ if __name__ == '__main__':
 
 #load the paired dataframe 
     df = load_paired_data(paired_data)
-    mapping_table = {'OZONE':'O3', 'PM2.5':'PM25_TOT', 'PM10':'PMC_TOT', 'CO':'CO_new', 'NO':'NO_new', 'NO2':'NO2_new', 'SO2':'SO2_new','NOX':'NOX_new','NOY':'NOY_new','TEMP':'TEMP2','WS':'WSPD10','WD':'WDIR10','SRAD':'GSW','BARPR':'PRSFC','PRECIP':'RT','RHUM':'Q2'}
+    mapping_table = {'pm25_ugm3':'sfc_pm25', 'pm10_ugm3':'sfc_pm10'}
     sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
     if region is "domain":
      subset = False 
 # subset  only the correct region
-    if subset is True:
-     df.query('epa_region == '+'"'+region+'"',inplace=True)
+    #if subset is True:
+    # df.query('giorgi_region == '+'"'+region+'"',inplace=True)
 
     #Loop through species
     for jj in species:
-     df_replace = df.replace(0.0,np.nan) #Replace all exact 0.0 values with nan
-     df_drop=df_replace.dropna(subset=[jj,sub_map.get(jj)]) #Drops all rows with obs species = NaN
+     df[jj] = np.where(df[jj]<=0, np.nan, df[jj]) #Replace all values < 0 with NaN
+     df_drop=df.dropna(subset=[jj,sub_map.get(jj)]) #Drops all corresponding rows with obs species = NaN
 
 #Converts OZONE, PM10, or PM2.5 dataframe to NAAQS regulatory values
      if jj == 'OZONE' and reg is True:
       df2 = make_8hr_regulatory(df_drop,[jj,sub_map.get(jj)]).rename(index=str,columns={jj+'_y':jj,sub_map.get(jj)+'_y':sub_map.get(jj)})
-     elif jj == 'PM2.5' and reg is True:
+     elif jj == 'pm25_ugm3' and reg is True:
       df2 = make_24hr_regulatory(df_drop,[jj,sub_map.get(jj)]).rename(index=str,columns={jj+'_y':jj,sub_map.get(jj)+'_y':sub_map.get(jj)})
-     elif jj == 'PM10' and reg is True:
+     elif jj == 'pm10_ugm3' and reg is True:
       df2 = make_24hr_regulatory(df_drop,[jj,sub_map.get(jj)]).rename(index=str,columns={jj+'_y':jj,sub_map.get(jj)+'_y':sub_map.get(jj)})
      else:
       df2=df_drop
@@ -290,4 +295,4 @@ if __name__ == '__main__':
 
      initial_datetime = dfnew_drop.time.min()
      # make the plots
-     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, region, vmin,vmax,outname)
+     make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, region,vmin,vmax,outname)

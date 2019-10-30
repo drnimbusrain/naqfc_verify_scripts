@@ -25,20 +25,20 @@ def pair_point(da, df, sub_map, interp):
     return dfpair
 
 
-def get_airnow(start, end, n_procs=None, datapath=None, verbose=False):
-    dates = pd.date_range(start=start, end=end, freq='H')
-    dfairnow = monet.obs.airnow.add_data(dates,n_procs=n_procs)
-    return dfairnow.drop_duplicates(subset=['time', 'siteid'])
+def get_open_aq(start, end, n_procs=None, datapath=None, verbose=False):
+    dates = pd.date_range(start=start, end=end, freq='D')
+    dfopen_aq = monet.obs.openaq.add_data(dates,n_procs=n_procs)
+    return dfopen_aq.drop_duplicates(subset=['time', 'siteid'])
 
 
-def open_cmaq(finput, verbose=False):
-    dset = monet.models.cmaq.open_mfdataset(finput)
+def open_fv3chem(finput, verbose=False):
+    dset = monet.models.fv3chem.open_mfdataset(finput)
     return dset
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(
-        description='pairs cmaq model data to aqs observations',
+        description='pairs fv3chem model data to aqs observations',
         formatter_class=ArgumentDefaultsHelpFormatter)
 
     parser.add_argument(
@@ -51,11 +51,11 @@ if __name__ == '__main__':
     parser.add_argument(
         '-s',
         '--species',
-        help='string/list input for obs species-variables to pair',
+        help='Open-AQ string/list input for obs species-variables to pair',
         type=str,
         nargs='+',
         required=False,
-        default=['OZONE', 'PM2.5'])
+        default=['pm25_ugm3'])
     parser.add_argument(
         '-o',
         '--output',
@@ -66,10 +66,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '-p',
         '--path',
-        help='string path to director of network observations',
+        help='string path to director of Open-AQ network observations',
         type=str,
         required=False,
-        default='/data/aqf2/barryb/5xpm/AQS_DATA/')
+        default=None)
     parser.add_argument(
         '-i',
         '--interp',
@@ -102,36 +102,21 @@ if __name__ == '__main__':
     verbose = args.verbose
     n_procs = args.n_procs
 
-    da = open_cmaq(finput, verbose=verbose)
+    da = open_fv3chem(finput, verbose=verbose)
     start = da.time.to_index()[0]
     end = da.time.to_index()[-1]
-    df = get_airnow(start, end, n_procs=n_procs, datapath=None)
+    df = get_open_aq(start, end, n_procs=n_procs, datapath=datapath)
     mapping_table = {
-            'OZONE': 'O3',
-            'PM2.5': 'PM25_TOT',
-            'PM10': 'PMC_TOT',
-            'CO': 'CO',
-            'NO': 'NO',
-            'NO2': 'NO2',
-            'SO2': 'SO2',
-            'NOX': 'NOX',
-            'NOY': 'NOY',
-            'TEMP': 'TEMP2',
-            'WS': 'WSPD10',
-            'WD': 'WDIR10',
-            'SRAD': 'GSW',
-            'BARPR': 'PRSFC',
-            'PRECIP': 'RT',
-            'RHUM': 'Q2'
+            'pm25_ugm3': 'sfc_pm25',
+            'pm10_ugm3': 'sfc_pm10',
              }
     sub_map = {i: mapping_table[i] for i in species if i in mapping_table}
     use_these = [sub_map[i] for i in sub_map.keys()]
     invert_sub_map = dict(map(reversed, sub_map.items()))
-    print(df.keys())
     dfpair = pair_point(da, df, use_these, interp)
-
+    print(dfpair)
     dfpair.to_hdf(
-            'AIRNOW_CMAQ_' + start.strftime('%Y-%m-%d-%H') + '_' +
+            'OPEN_AQ_FV3CHEM_' + start.strftime('%Y-%m-%d-%H') + '_' +
             end.strftime('%Y-%m-%d-%H') + '_pair.hdf',
             'dfpair',
             format='table',
