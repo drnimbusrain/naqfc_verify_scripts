@@ -22,6 +22,7 @@ from monet.util.mystats import NO,NP,NOP,MO,MP,MdnO,MdnP,STDO,STDP,MB,WDMB_m,NMB
 import pandas as pd
 import numpy as np
 from numpy import sqrt
+import dask.dataframe as dd
 
 #Define all statistics and statistical plots desired
 
@@ -126,7 +127,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(description='calculates statistics from paired file', formatter_class=ArgumentDefaultsHelpFormatter)
     
-    parser.add_argument('-p',   '--paired_data',       help='string input paired file directory/names', type=str, required=True)
+    parser.add_argument('-p',   '--paired_data',       help='string input paired file directory/names', type=str,nargs='+', required=True)
     parser.add_argument('-r',   '--regulatory',  help='boolean set to True fore 8-hrmax  or 24-ave NAAQS regulatory calcs', type=bool, required=False, default=False)
     parser.add_argument('-sd',  '--startdate',   help='string start date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
     parser.add_argument('-ed',  '--enddate',     help='string end date to isolate periods for statistics YYYY-MM-DD HH:MM:SS', type=str, required=False, default=None)
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     verbose      = args.verbose
 
     for ee in giorgi_regions:
-       df = pd.read_hdf(finput)
+       df = dd.read_hdf(finput, '/*').compute()
        mapping_table = {'pm25_ugm3':'sfc_pm25', 'pm10_ugm3':'sfc_pm10'}
        sub_map = {i: mapping_table[i] for i in species if i in mapping_table}   
 #subsetting data for dates, regulatory calc, and/or giorgi regions    
@@ -170,13 +171,13 @@ if __name__ == '__main__':
           df = df[(df['longitude'] >= lonmin) & (df['longitude'] <= lonmax)]  
 
        if reg is True and subset_giorgi is False:
-          stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_domain.txt','w')
+          stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_domain.txt','w')
        elif reg is True and subset_giorgi is True:
-          stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_'+ee+'.txt','w')
+          stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_'+ee+'.txt','w')
        elif reg is False and subset_giorgi is True:
-          stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_'+ee+'.txt','w')
+          stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_'+ee+'.txt','w')
        else:
-          stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_domain.txt','w')          
+          stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_domain.txt','w')          
        
 #Converts OZONE, PM10, or PM2.5 dataframe to NAAQS regulatory values
        for jj in species: 
@@ -211,13 +212,13 @@ if __name__ == '__main__':
          df2=df2  
 #Calculates average statistics over entire file time
         if reg is True and subset_giorgi is False:
-       	 stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_domain.txt','a')
+       	 stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_domain.txt','a')
         elif reg is True and subset_giorgi is True:
-         stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_'+ee+'.txt','a')
+         stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_reg_stats_'+ee+'.txt','a')
         elif reg is False and subset_giorgi is True:
-         stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_'+ee+'.txt','a')
+         stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_'+ee+'.txt','a')
         else:
-       	 stats=open(finput.replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_domain.txt','a')
+       	 stats=open(finput[0].replace('.hdf','_')+startdatename+'_'+enddatename+'_stats_domain.txt','a')
          
         print('---------------------------------')
         print('Statistics of ',jj,' and ',sub_map.get(jj),' pair over ', startdatename,' to ', enddatename)

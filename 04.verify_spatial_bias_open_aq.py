@@ -25,6 +25,7 @@ import seaborn as sns
 import numpy as np
 import monet
 from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum
+import dask.dataframe as dd
 
 sns.set_context('notebook')
 
@@ -50,7 +51,7 @@ def chdir(fname):
     return os.path.basename(fname)
 
 def load_paired_data(fname):
-    return pd.read_hdf(fname)
+    return dd.read_hdf(fname,'/*').compute()
 
 
 def make_spatial_bias_plot(df,
@@ -161,6 +162,7 @@ if __name__ == '__main__':
         '--paired_data',
         help='paired data input file names',
         type=str,
+        nargs='+',
         required=True)
     parser.add_argument(
         '-s', '--species', nargs='+', help='Species', required=False, default=['pm25_ugm3'])
