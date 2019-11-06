@@ -185,7 +185,7 @@ if __name__ == '__main__':
         help='Spatial bias plot Output base name',
         type=str,
         required=False,
-        default='OPEN_AQ_FV3CHEM')
+        default='AERONET_FV3CHEM')
     parser.add_argument(
         '-r',
         '--regulatory',
