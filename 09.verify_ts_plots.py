@@ -249,6 +249,10 @@ if __name__ == '__main__':
        outname = "{}.{}.{}.{}.{}".format(out_name, region, jj, startdatename, enddatename)
        if reg is True:
         outname = "{}.{}.{}.{}.{}.{}".format(out_name, region, jj,startdatename, enddatename,'reg')
+       if kzfilt is True:
+        outname = "{}.{}.{}.{}.{}.{}".format(out_name, region, jj,startdatename, enddatename,'kz')
+       if kzfilt is True and reg is True:
+        outname = "{}.{}.{}.{}.{}.{}.{}".format(out_name, region, jj,startdatename, enddatename,'kz', 'reg')
        if jj == 'PM2.5':
         outname = outname.replace('PM2.5','PM2P5')
        if region == 'domain':
@@ -258,6 +262,10 @@ if __name__ == '__main__':
        outname = "{}.{}.{}".format(out_name,region, jj)
        if reg is True:
         outname = "{}.{}.{}.{}".format(out_name,region, jj, 'reg')
+       if kzfilt is True:
+        outname = "{}.{}.{}.{}".format(out_name,region, jj, 'kz')
+       if kzfilt is True and reg is True:
+        outname = "{}.{}.{}.{}.{}".format(out_name,region, jj, 'kz', 'reg')
        if jj == 'PM2.5':
         outname = outname.replace('PM2.5','PM2P5')
        if region == 'domain':
