@@ -107,7 +107,7 @@ def make_timeseries_epa(
     plt.legend(loc=1)
     plt.tight_layout(pad=0)
     name = "{}.ts.jpg".format(savename)
-    monet.plots.savefig(name, dpi=100, loc=3, decorate=True)
+    monet.plots.savefig(name, dpi=100, loc=4, decorate=False)
 
 if __name__ == '__main__':
 
