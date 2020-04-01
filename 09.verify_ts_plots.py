@@ -26,7 +26,7 @@ import numpy as np
 import seaborn as sns
 import sys
 import monet
-from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum
+from monet.util.tools import calc_8hr_rolling_max,calc_24hr_ave,get_relhum, kolmogorov_zurbenko_filter
 
 sns.set_context('notebook')
 
@@ -44,6 +44,9 @@ def  make_8hr_regulatory(df,col=None):
      """ Make 8-hour rolling average daily """
      return calc_8hr_rolling_max(df,col,window=8)
 
+def make_kz_filter(df,col=None,window=None,iterations=None):
+    """ Make kolmogorov_zurbenko_filter """
+    return kolmogorov_zurbenko_filter(df,col,window,iterations)
 
 def chdir(fname):
     dir_path = os.path.dirname(os.path.realpath(fname))
@@ -138,6 +141,13 @@ if __name__ == '__main__':
         required=False,
         default=False)
     parser.add_argument(
+        '-kz',
+        '--kzfilter',
+        help='boolean set to True for applying a kolmogorov_zurbenko_filter',
+        type=bool,
+        required=False,
+        default=False)
+    parser.add_argument(
         '-sd',
         '--startdate',
         help='Startdate for time series over a period YYYY-MM-DD HH:MM:SS',
@@ -163,6 +173,13 @@ if __name__ == '__main__':
         '-maxy', '--maxy_scale', help='Set static max y-scale', type=float, required=False, default=None)
     parser.add_argument(
         '-ylog', '--ylog_scale', help='Set log y-scale', type=bool, required=False, default=False)
+    parser.add_argument(
+        '-kzw', '--kz_window', help='Set window, m, in model time units  (default = 15 days (360 hrs), AQ Baseline Component, Weiss and Comrie, (2005))', 
+         type=int, required=False, default=360)
+    parser.add_argument(
+        '-kzi', '--kz_iterations', help='Set kz iterations (default = 5, AQ Baseline Component, Weiss and Comrie (2005), removes cycles < 33 days)', 
+         type=int, required=False, default=5)
+
     args = parser.parse_args()
 
     paired_data = args.paired_data
@@ -175,6 +192,9 @@ if __name__ == '__main__':
     vmin        = args.miny_scale
     vmax        = args.maxy_scale
     ylog        = args.ylog_scale
+    kzfilt      = args.kzfilter
+    kzw         = args.kz_window
+    kzi         = args.kz_iterations
 
     for jj in species:
      plt.close() 
@@ -246,6 +266,11 @@ if __name__ == '__main__':
       dfnew_drop=dfnew.dropna(subset=[jj,sub_map.get(jj)])
 
       initial_datetime = dfnew_drop.time.min()
+#Appling a low-pass K-Z filter
+      if kzfilt is True:
+       dfnew_drop2 = make_kz_filter(dfnew_drop,[jj,sub_map.get(jj)],window=kzw,iterations=kzi).rename(index=str,columns={jj+'_y':jj,sub_map.get(jj)+'_y':sub_map.get(jj)})
+      else:
+       dfnew_drop2 = dfnew_drop
 # make the plots
-      make_plots(dfnew_drop, sub_map.get(jj), jj, startdate, enddate, vmin, vmax, ylog, region, modcount,outname)
+      make_plots(dfnew_drop2, sub_map.get(jj), jj, startdate, enddate, vmin, vmax, ylog, region, modcount,outname)
       modcount=modcount+1
