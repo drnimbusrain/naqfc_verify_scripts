@@ -109,7 +109,7 @@ def make_timeseries_epa(
     plt.ylabel(r'Concentration (ppbV or micrograms/m-3)')
     plt.legend(loc=1)
     plt.tight_layout(pad=0)
-    name = "{}.ts.jpg".format(savename)
+    name = "{}.ts.pdf".format(savename)
     monet.plots.savefig(name, dpi=100, loc=4, decorate=False)
 
 if __name__ == '__main__':

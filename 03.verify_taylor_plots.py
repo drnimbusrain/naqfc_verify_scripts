@@ -62,7 +62,7 @@ def make_taylor_diagram(df, col1, col2, scale, savename,date=None):
     #dt = date - initial_datetime
     #dtstr = str(dt.days * 24 + dt.seconds // 3600).zfill(2)
     plt.legend(loc=(.8, .8))
-    name = "{}.{}.jpg".format(savename, date.strftime('tyr.%d%H'))
+    name = "{}.{}.pdf".format(savename, date.strftime('tyr.%d%H'))
     
     monet.plots.savefig(
         name, bbox_inches='tight', dpi=100, loc=3, decorate=True)
